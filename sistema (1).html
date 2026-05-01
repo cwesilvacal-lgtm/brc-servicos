@@ -1,0 +1,1801 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BRC Serviços — Certificados Digitais</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:#F0EEE9;color:#1A1916;font-size:14px;}
+/* LOGIN */
+.login-screen{position:fixed;inset:0;background:#F0EEE9;display:flex;align-items:center;justify-content:center;z-index:9999;padding:1rem;}
+.login-box{background:#fff;border-radius:12px;border:1px solid #E2DFD8;padding:2.5rem 2rem;width:100%;max-width:360px;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,0.08);}
+.login-logo{font-size:40px;margin-bottom:0.5rem;}
+.login-box h1{font-size:22px;font-weight:600;margin-bottom:4px;color:#1A472A;}
+.login-box p{font-size:13px;color:#6B6860;margin-bottom:1.5rem;}
+.login-box .fr{text-align:left;margin-bottom:12px;}
+.login-box .fr label{display:block;font-size:12px;font-weight:500;color:#6B6860;margin-bottom:5px;}
+.login-box .fr input{width:100%;background:#fff;border:1px solid #E2DFD8;border-radius:6px;padding:10px 12px;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;}
+.login-box .fr input:focus{border-color:#1A472A;}
+.login-btn{width:100%;padding:10px;background:#1A472A;color:#fff;border:none;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;margin-top:4px;}
+.login-btn:hover{opacity:0.88;}
+.login-err{color:#8B1A1A;font-size:12px;margin-top:8px;display:none;}
+/* TOPBAR */
+.topbar{background:#1A472A;color:#fff;padding:0 1.5rem;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.topbar-title{font-size:15px;font-weight:600;display:flex;align-items:center;gap:10px;}
+.topbar-icon{width:28px;height:28px;background:rgba(255,255,255,0.15);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;}
+.topbar-right{display:flex;align-items:center;gap:12px;}
+.topbar-date{font-size:12px;opacity:0.7;}
+.logout-btn{background:rgba(255,255,255,0.1);border:none;color:#fff;padding:4px 12px;border-radius:5px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.logout-btn:hover{background:rgba(255,255,255,0.2);}
+/* NOTIF */
+.notif{background:#FDEAEA;border-bottom:2px solid #F5BFBF;padding:10px 1.5rem;display:none;align-items:center;gap:10px;font-size:13px;color:#8B1A1A;font-weight:500;}
+.notif.show{display:flex;}
+/* CONTAINER */
+.container{max-width:1100px;margin:0 auto;padding:1.5rem;}
+/* ABAS */
+.nav-tabs{display:flex;border-bottom:2px solid #E2DFD8;margin-bottom:1.5rem;gap:0;overflow-x:auto;}
+.nav-tab{padding:10px 20px;font-size:13px;font-weight:500;color:#6B6860;cursor:pointer;border:none;border-bottom:2px solid transparent;margin-bottom:-2px;background:none;font-family:'DM Sans',sans-serif;white-space:nowrap;}
+.nav-tab.active{color:#1A472A;border-bottom-color:#1A472A;}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+/* MÉTRICAS */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:1.5rem;}
+.metric{background:#fff;border-radius:10px;border:1px solid #E2DFD8;padding:1rem 1.25rem;}
+.metric .lbl{font-size:11px;color:#9C9A94;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;}
+.metric .val{font-size:26px;font-weight:600;}
+.metric .sub{font-size:11px;margin-top:4px;}
+.md .val{color:#8B1A1A;} .md .sub{color:#8B1A1A;opacity:0.7;}
+.mw .val{color:#7A4A00;}
+.mg .val{color:#1A472A;}
+/* TOOLBAR */
+.toolbar{display:flex;gap:10px;margin-bottom:1rem;flex-wrap:wrap;align-items:center;}
+.toolbar input{flex:1;min-width:180px;background:#fff;border:1px solid #E2DFD8;border-radius:6px;padding:8px 12px;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;}
+.toolbar select{width:185px;background:#fff;border:1px solid #E2DFD8;border-radius:6px;padding:8px 12px;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;}
+/* BOTÕES */
+.btn{padding:8px 16px;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;border:1px solid transparent;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;}
+.bp{background:#1A472A;color:#fff;border-color:#1A472A;} .bp:hover{opacity:0.88;}
+.bs{background:#E8F0EB;color:#1A472A;border-color:#C5D9CC;}
+.bo{background:#fff;color:#6B6860;border-color:#CBC8C0;} .bo:hover{background:#F0EEE9;}
+.bd{background:#FDEAEA;color:#8B1A1A;border-color:#F5BFBF;}
+.binfo{background:#E6F1FB;color:#0C447C;border-color:#B5D4F4;}
+.bsm{padding:5px 10px;font-size:12px;}
+/* TABELA */
+.table-card{background:#fff;border-radius:10px;border:1px solid #E2DFD8;overflow:hidden;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead th{background:#F0EEE9;padding:10px 14px;text-align:left;font-weight:500;font-size:11px;color:#9C9A94;text-transform:uppercase;letter-spacing:0.05em;border-bottom:1px solid #E2DFD8;}
+tbody tr{border-bottom:1px solid #E2DFD8;}
+tbody tr:last-child{border-bottom:none;}
+tbody tr:hover{background:#FAFAF8;}
+td{padding:11px 14px;vertical-align:middle;}
+.acts{display:flex;gap:6px;}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;}
+.bv{background:#FDEAEA;color:#8B1A1A;} .bc{background:#FEF3E2;color:#7A4A00;} .ba{background:#FDF6E3;color:#5C3A00;} .bk{background:#E8F0EB;color:#1A472A;}
+.dv{color:#8B1A1A;font-weight:600;} .dc{color:#7A4A00;font-weight:600;} .da{color:#5C3A00;font-weight:600;} .dk{color:#1A472A;font-weight:500;}
+.empty td{text-align:center;padding:2.5rem;color:#9C9A94;}
+/* MODAL */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200;align-items:center;justify-content:center;padding:1rem;}
+.overlay.open{display:flex;}
+.modal{background:#fff;border-radius:10px;border:1px solid #E2DFD8;padding:1.75rem;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;}
+.modal h2{font-size:16px;font-weight:600;margin-bottom:1.25rem;}
+.fr{margin-bottom:14px;}
+.fr label{display:block;font-size:12px;font-weight:500;color:#6B6860;margin-bottom:5px;}
+.fr input,.fr select,.fr textarea{width:100%;background:#fff;border:1px solid #E2DFD8;border-radius:6px;padding:8px 12px;font-family:'DM Sans',sans-serif;font-size:13px;color:#1A1916;outline:none;}
+.fr input:focus,.fr select:focus,.fr textarea:focus{border-color:#1A472A;}
+.fr textarea{height:80px;resize:vertical;}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.mf{display:flex;gap:8px;justify-content:flex-end;margin-top:1.25rem;padding-top:1rem;border-top:1px solid #E2DFD8;}
+.msgbox{background:#F0EEE9;border-left:3px solid #1A472A;border-radius:0 6px 6px 0;padding:12px 14px;font-size:13px;line-height:1.6;white-space:pre-wrap;margin-bottom:1rem;}
+.slabel{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#9C9A94;margin-bottom:8px;}
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:#fff;border:1px solid #E2DFD8;border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,0.1);padding:12px 20px;font-size:13px;font-weight:500;z-index:999;opacity:0;transform:translateY(12px);transition:all 0.3s;pointer-events:none;max-width:320px;}
+.toast.show{opacity:1;transform:translateY(0);}
+.ts{border-color:#C5D9CC;color:#1A472A;} .te{border-color:#F5BFBF;color:#8B1A1A;}
+/* RECIBO */
+.recibo-preview{background:#fff;border:1px solid #E2DFD8;border-radius:10px;padding:2rem;font-family:'DM Sans',sans-serif;max-width:600px;margin:0 auto;}
+.recibo-header{text-align:center;border-bottom:2px solid #1A472A;padding-bottom:1rem;margin-bottom:1.5rem;}
+.recibo-header h2{color:#1A472A;font-size:20px;font-weight:600;}
+.recibo-header p{font-size:13px;color:#6B6860;margin-top:4px;}
+.recibo-numero{text-align:right;font-size:12px;color:#9C9A94;margin-bottom:1rem;}
+.recibo-body{margin-bottom:1.5rem;}
+.recibo-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #F0EEE9;font-size:13px;}
+.recibo-row .rl{color:#6B6860;}
+.recibo-row .rv{font-weight:500;}
+.recibo-valor{background:#E8F0EB;border-radius:8px;padding:1rem;text-align:center;margin:1rem 0;}
+.recibo-valor .vl{font-size:11px;color:#1A472A;text-transform:uppercase;letter-spacing:0.05em;}
+.recibo-valor .vv{font-size:28px;font-weight:600;color:#1A472A;}
+.recibo-valor .ve{font-size:12px;color:#6B6860;margin-top:4px;}
+.recibo-footer{border-top:1px solid #E2DFD8;padding-top:1rem;margin-top:1rem;display:flex;justify-content:space-between;align-items:flex-end;}
+.assinatura{text-align:center;}
+.assinatura .linha{width:200px;border-top:1px solid #1A1916;margin:0 auto 4px;}
+.assinatura p{font-size:12px;color:#6B6860;}
+/* TORGE */
+.torge-hdr{text-align:center;margin-bottom:1.5rem;padding:1.25rem;background:#fff;border-radius:10px;border:1px solid #E2DFD8;}
+.torge-logo{font-size:20px;font-weight:600;color:#0B3D6B;margin-bottom:4px;}
+.torge-sub{font-size:12px;color:#6B6860;}
+.torge-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+.tc{background:#fff;border:1px solid #E2DFD8;border-radius:10px;padding:1.5rem 1rem;display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;transition:all 0.15s;}
+.tc:hover{border-color:#0B3D6B;transform:translateY(-2px);}
+.ti{width:56px;height:56px;background:#EAF2FB;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;border:1px solid #C5D9EF;}
+.tn{font-size:13px;font-weight:500;color:#1A1916;text-align:center;}
+.tc-login{border:2px solid #0B3D6B;background:#EAF2FB;}
+.tc-login .ti{background:#0B3D6B;}
+.tc-login .tn{color:#0B3D6B;font-weight:600;}
+/* SENHA ABA */
+.senha-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:300;align-items:center;justify-content:center;}
+.senha-overlay.open{display:flex;}
+.senha-box{background:#fff;border-radius:12px;border:1px solid #E2DFD8;padding:2rem;width:100%;max-width:320px;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,0.12);}
+.senha-box .si{font-size:36px;margin-bottom:0.5rem;}
+.senha-box h3{font-size:16px;font-weight:600;margin-bottom:4px;}
+.senha-box p{font-size:13px;color:#6B6860;margin-bottom:1.25rem;}
+.senha-box input{width:100%;background:#fff;border:1px solid #E2DFD8;border-radius:6px;padding:10px 12px;font-family:'DM Sans',sans-serif;font-size:16px;text-align:center;letter-spacing:4px;outline:none;margin-bottom:12px;}
+.senha-box input:focus{border-color:#1A472A;}
+.senha-box .err{color:#8B1A1A;font-size:12px;margin-top:-6px;margin-bottom:10px;display:none;}
+@media print{
+  body > *:not(#print-area) { display:none!important; }
+  #print-area { display:block!important; position:fixed; inset:0; background:#fff; padding:16px; z-index:9999; overflow:visible; }
+  #print-area .no-print { display:none!important; }
+  .recibo-preview { border:none!important; box-shadow:none!important; max-width:100%!important; }
+  @page { margin:10mm; size:A4 portrait; }
+}
+#print-area { display:none; }
+.agenda-grid{display:grid;grid-template-columns:300px 1fr;gap:16px;}
+@media(max-width:800px){.agenda-grid{grid-template-columns:1fr;}}
+.agenda-form{background:#fff;border-radius:10px;border:1px solid #E2DFD8;padding:1.25rem;}
+.agenda-form h3{font-size:14px;font-weight:600;margin-bottom:1rem;color:#1A1916;}
+.agenda-lista{display:flex;flex-direction:column;gap:8px;}
+.agenda-item{background:#fff;border-radius:10px;border:1px solid #E2DFD8;padding:1rem;display:flex;align-items:flex-start;gap:10px;transition:all 0.15s;}
+.agenda-item.urgente{border-color:#F5BFBF;background:#FDEAEA;}
+.agenda-item.hoje{border-color:#C5D9CC;background:#E8F0EB;}
+.agenda-item.futuro{border-color:#E2DFD8;}
+.agenda-item.concluido{opacity:0.5;}
+.agenda-item .ai-icon{font-size:20px;flex-shrink:0;margin-top:2px;}
+.agenda-item .ai-corpo{flex:1;}
+.agenda-item .ai-titulo{font-size:13px;font-weight:500;color:#1A1916;margin-bottom:2px;}
+.agenda-item .ai-data{font-size:11px;color:#9C9A94;}
+.agenda-item .ai-obs{font-size:12px;color:#6B6860;margin-top:4px;}
+.agenda-item .ai-acts{display:flex;gap:6px;margin-top:8px;}
+.agenda-vazia{text-align:center;padding:2rem;color:#9C9A94;font-size:13px;background:#fff;border-radius:10px;border:1px solid #E2DFD8;}
+.agenda-filtros{display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;}
+.agenda-mini-cal{background:#fff;border-radius:10px;border:1px solid #E2DFD8;padding:1rem;margin-bottom:12px;}
+.cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.cal-header span{font-size:13px;font-weight:500;}
+.cal-header button{background:none;border:none;cursor:pointer;font-size:16px;color:#6B6860;padding:2px 6px;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center;}
+.cal-dia-nome{font-size:10px;color:#9C9A94;font-weight:500;padding:2px 0;}
+.cal-dia{font-size:12px;padding:4px 2px;border-radius:4px;cursor:pointer;}
+.cal-dia:hover{background:#F0EEE9;}
+.cal-dia.hoje{background:#1A472A;color:#fff;font-weight:600;}
+.cal-dia.tem-evento{background:#E8F0EB;color:#1A472A;font-weight:600;}
+.cal-dia.outro-mes{color:#D0CEC8;}
+.notif-som{position:fixed;bottom:80px;right:24px;background:#1A472A;color:#fff;border-radius:10px;padding:12px 20px;font-size:13px;font-weight:500;z-index:999;opacity:0;transform:translateY(12px);transition:all 0.3s;pointer-events:none;max-width:320px;box-shadow:0 4px 16px rgba(0,0,0,0.2);}
+.notif-som.show{opacity:1;transform:translateY(0);}
+@media(max-width:700px){.metrics{grid-template-columns:repeat(2,1fr);} .container{padding:1rem;} .fg{grid-template-columns:1fr;} .torge-grid{grid-template-columns:repeat(2,1fr);}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-screen" id="login-screen">
+  <div class="login-box">
+    <div style="margin:0 auto 12px;width:200px;"><svg width="200" height="76" viewBox="0 0 520 200" role="img" style="display:block;">
+<rect x="0" y="0" width="520" height="200" rx="12" fill="#0A1F3D"/>
+<circle cx="40" cy="30" r="1.5" fill="#2980B9" opacity="0.5"/>
+<circle cx="58" cy="30" r="1.5" fill="#2980B9" opacity="0.3"/>
+<circle cx="40" cy="46" r="1.5" fill="#2980B9" opacity="0.3"/>
+<circle cx="58" cy="46" r="1.5" fill="#2980B9" opacity="0.5"/>
+<text x="260" y="118" text-anchor="middle" font-family="Arial,sans-serif" font-size="80" font-weight="700" fill="#fff" letter-spacing="12">BRC</text>
+<line x1="80" y1="134" x2="440" y2="134" stroke="#2980B9" stroke-width="1.5" opacity="0.6"/>
+<text x="260" y="164" text-anchor="middle" font-family="Arial,sans-serif" font-size="22" font-weight="400" fill="#7FB3D3" letter-spacing="10">SERVIÇOS</text>
+</svg></div>
+    <p style="margin-top:8px;">Digite a senha para acessar o sistema</p>
+    <div class="fr">
+      <label>Senha</label>
+      <input type="password" id="login-senha" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter')entrar()">
+    </div>
+    <button class="login-btn" onclick="entrar()">Entrar</button>
+    <div class="login-err" id="login-err">Senha incorreta. Tente novamente.</div>
+  </div>
+</div>
+
+<div class="topbar">
+  <div class="topbar-title">
+    <svg width="120" height="45" viewBox="0 0 520 200" role="img" style="display:block;">
+<rect x="0" y="0" width="520" height="200" rx="12" fill="#0A1F3D"/>
+<circle cx="40" cy="30" r="1.5" fill="#2980B9" opacity="0.5"/>
+<circle cx="58" cy="30" r="1.5" fill="#2980B9" opacity="0.3"/>
+<circle cx="40" cy="46" r="1.5" fill="#2980B9" opacity="0.3"/>
+<circle cx="58" cy="46" r="1.5" fill="#2980B9" opacity="0.5"/>
+<text x="260" y="118" text-anchor="middle" font-family="Arial,sans-serif" font-size="80" font-weight="700" fill="#fff" letter-spacing="12">BRC</text>
+<line x1="80" y1="134" x2="440" y2="134" stroke="#2980B9" stroke-width="1.5" opacity="0.6"/>
+<text x="260" y="164" text-anchor="middle" font-family="Arial,sans-serif" font-size="22" font-weight="400" fill="#7FB3D3" letter-spacing="10">SERVIÇOS</text>
+</svg>
+  </div>
+  <div class="topbar-right">
+    <div class="topbar-date" id="data-hoje"></div>
+    <button class="logout-btn" onclick="sair()">Sair</button>
+  </div>
+</div>
+
+<div class="notif" id="notif">
+  <span style="font-size:20px">🔔</span>
+  <span id="notif-txt"></span>
+  <span style="margin-left:auto;cursor:pointer;opacity:0.5;font-size:20px" onclick="document.getElementById('notif').classList.remove('show')">×</span>
+</div>
+
+<div class="container">
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="aba('certificados',this)">🔐 Certificados</button>
+    <button class="nav-tab" onclick="aba('clientes',this)">👥 Clientes</button>
+    <button class="nav-tab" onclick="aba('recibos',this)">🧾 Recibos</button>
+    <button class="nav-tab" onclick="aba('agenda',this)">📅 Agenda</button>
+    <button class="nav-tab" onclick="aba('torge',this)">💻 Torge</button>
+  </div>
+
+  <!-- ABA CERTIFICADOS -->
+  <div class="tab-panel active" id="aba-certificados">
+    <div class="metrics" id="metrics"></div>
+    <div class="toolbar">
+      <input type="text" id="busca" placeholder="Buscar por nome ou CNPJ..." oninput="renderCerts()">
+      <select id="filtro" onchange="renderCerts()">
+        <option value="todos">Todos os status</option>
+        <option value="vencido">Vencidos</option>
+        <option value="critico">Crítico (até 15 dias)</option>
+        <option value="atencao">Atenção (até 30 dias)</option>
+        <option value="ok">Em dia</option>
+      </select>
+      <button class="btn bp" onclick="abrirNovoCert()">+ Novo certificado</button>
+      <button class="btn bs" onclick="enviarMassa()">📨 Alertas em massa</button>
+      <button class="btn bo" onclick="exportarExcel()">📥 Exportar Excel</button>
+    </div>
+    <div class="table-card">
+      <table>
+        <thead><tr><th>Cliente</th><th>CNPJ/CPF</th><th>Tipo</th><th>Vencimento</th><th>Status</th><th>Dias</th><th>Ações</th></tr></thead>
+        <tbody id="tbody-certs"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ABA CLIENTES -->
+  <div class="tab-panel" id="aba-clientes">
+    <div class="toolbar">
+      <input type="text" id="busca-cli" placeholder="Buscar cliente..." oninput="renderClientes()">
+      <button class="btn bp" onclick="abrirNovoCliente()">+ Novo cliente</button>
+      <button class="btn bo" onclick="relatorioClientes()">🖨️ Relatório de clientes</button>
+    </div>
+    <div class="table-card">
+      <table>
+        <thead><tr><th>Nome</th><th>CPF/CNPJ</th><th>Telefone</th><th>E-mail</th><th>Endereço</th><th>Ações</th></tr></thead>
+        <tbody id="tbody-clientes"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ABA RECIBOS -->
+  <div class="tab-panel" id="aba-recibos">
+    <div class="metrics" id="metrics-rec" style="grid-template-columns:repeat(4,1fr)"></div>
+    <div class="toolbar">
+      <button class="btn bp" onclick="abrirNovoRecibo()">+ Novo recibo</button>
+      <input type="text" id="busca-rec" placeholder="Buscar recibo..." oninput="renderRecibos()" style="min-width:140px;">
+      <select id="filtro-mes" onchange="renderRecibos()" style="width:150px;background:#fff;border:1px solid #E2DFD8;border-radius:6px;padding:8px 12px;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;">
+        <option value="todos">Todos os meses</option>
+      </select>
+      <select id="filtro-rec" onchange="renderRecibos()" style="width:140px;background:#fff;border:1px solid #E2DFD8;border-radius:6px;padding:8px 12px;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;">
+        <option value="todos">Todos status</option>
+        <option value="aberto">Em aberto</option>
+        <option value="vencido">Vencidos</option>
+        <option value="pago">Pagos</option>
+      </select>
+      <button class="btn bs" onclick="selecionarTodos()" id="btn-sel-todos">☑ Selecionar todos</button>
+      <button class="btn binfo" onclick="imprimirSelecionados()" id="btn-impr-sel" style="display:none;">🖨️ Imprimir (<span id="qtd-sel">0</span>)</button>
+      <button class="btn bs" onclick="cobrarSelecionados()" id="btn-cobrar-sel" style="display:none;">💬 Cobrar selecionados</button>
+      <span id="total-sel" style="display:none;background:#E8F0EB;color:#1A472A;border-radius:6px;padding:6px 12px;font-size:13px;font-weight:600;white-space:nowrap;"></span>
+      <button class="btn bo" onclick="relatorioRecibos('vencido')">🔴 Vencidos</button>
+      <button class="btn bo" onclick="relatorioRecibos('aberto')">🟡 A Vencer</button>
+      <button class="btn bo" onclick="relatorioRecibos('receber')">💰 A Receber</button>
+      <button class="btn bo" onclick="relatorioRecibos('atrasado')">⚠️ Atrasados</button>
+      <button class="btn bs" onclick="cobrarTodosVisiveis()">💬 Cobrar todos em aberto</button>
+    </div>
+    <div class="table-card" style="margin-bottom:1.5rem">
+      <table>
+        <thead><tr><th style="width:36px"><input type="checkbox" id="chk-todos" onchange="toggleTodos(this.checked)" style="cursor:pointer;width:16px;height:16px;"></th><th>Nº</th><th>Cliente</th><th>Serviço</th><th>Valor</th><th>Vencimento</th><th>Status</th><th>Ações</th></tr></thead>
+        <tbody id="tbody-recibos"></tbody>
+      </table>
+    </div>
+
+    <!-- PAINEL DE RELATÓRIOS -->
+    <div style="margin-top:1.5rem;">
+      <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#9C9A94;margin-bottom:10px;">📊 Relatórios</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
+
+        <div style="background:#fff;border:1px solid #E2DFD8;border-radius:10px;padding:1rem;cursor:pointer;transition:all 0.15s;" onclick="relatorioRecibos('pago')" onmouseover="this.style.borderColor='#1A472A'" onmouseout="this.style.borderColor='#E2DFD8'">
+          <div style="font-size:22px;margin-bottom:6px;">✅</div>
+          <div style="font-size:13px;font-weight:500;color:#1A472A;">Pagos</div>
+          <div style="font-size:11px;color:#9C9A94;margin-top:2px;">Recibos quitados</div>
+        </div>
+
+        <div style="background:#fff;border:1px solid #E2DFD8;border-radius:10px;padding:1rem;cursor:pointer;transition:all 0.15s;" onclick="relatorioRecibos('aberto')" onmouseover="this.style.borderColor='#7A4A00'" onmouseout="this.style.borderColor='#E2DFD8'">
+          <div style="font-size:22px;margin-bottom:6px;">🟡</div>
+          <div style="font-size:13px;font-weight:500;color:#7A4A00;">A vencer</div>
+          <div style="font-size:11px;color:#9C9A94;margin-top:2px;">Em aberto no prazo</div>
+        </div>
+
+        <div style="background:#fff;border:1px solid #E2DFD8;border-radius:10px;padding:1rem;cursor:pointer;transition:all 0.15s;" onclick="relatorioRecibos('vencido')" onmouseover="this.style.borderColor='#8B1A1A'" onmouseout="this.style.borderColor='#E2DFD8'">
+          <div style="font-size:22px;margin-bottom:6px;">🔴</div>
+          <div style="font-size:13px;font-weight:500;color:#8B1A1A;">Vencidos</div>
+          <div style="font-size:11px;color:#9C9A94;margin-top:2px;">Passou da data</div>
+        </div>
+
+        <div style="background:#fff;border:1px solid #E2DFD8;border-radius:10px;padding:1rem;cursor:pointer;transition:all 0.15s;" onclick="relatorioRecibos('receber')" onmouseover="this.style.borderColor='#0C447C'" onmouseout="this.style.borderColor='#E2DFD8'">
+          <div style="font-size:22px;margin-bottom:6px;">💰</div>
+          <div style="font-size:13px;font-weight:500;color:#0C447C;">A receber</div>
+          <div style="font-size:11px;color:#9C9A94;margin-top:2px;">Tudo em aberto</div>
+        </div>
+
+        <div style="background:#fff;border:1px solid #E2DFD8;border-radius:10px;padding:1rem;cursor:pointer;transition:all 0.15s;" onclick="relatorioRecibos('atrasado')" onmouseover="this.style.borderColor='#6B0000'" onmouseout="this.style.borderColor='#E2DFD8'">
+          <div style="font-size:22px;margin-bottom:6px;">⚠️</div>
+          <div style="font-size:13px;font-weight:500;color:#6B0000;">Atrasados</div>
+          <div style="font-size:11px;color:#9C9A94;margin-top:2px;">Cobrança urgente</div>
+        </div>
+
+        <div style="background:#fff;border:1px solid #E2DFD8;border-radius:10px;padding:1rem;cursor:pointer;transition:all 0.15s;" onclick="relatorioRecibos('todos')" onmouseover="this.style.borderColor='#1A472A'" onmouseout="this.style.borderColor='#E2DFD8'">
+          <div style="font-size:22px;margin-bottom:6px;">📋</div>
+          <div style="font-size:13px;font-weight:500;color:#1A472A;">Todos</div>
+          <div style="font-size:11px;color:#9C9A94;margin-top:2px;">Relatório geral</div>
+        </div>
+
+        <div style="background:#fff;border:1px solid #E2DFD8;border-radius:10px;padding:1rem;cursor:pointer;transition:all 0.15s;" onclick="relatorioClientesDevendo()" onmouseover="this.style.borderColor='#8B1A1A'" onmouseout="this.style.borderColor='#E2DFD8'">
+          <div style="font-size:22px;margin-bottom:6px;">👥</div>
+          <div style="font-size:13px;font-weight:500;color:#8B1A1A;">Clientes em atraso</div>
+          <div style="font-size:11px;color:#9C9A94;margin-top:2px;">Por cliente</div>
+        </div>
+
+        <div style="background:#fff;border:1px solid #E2DFD8;border-radius:10px;padding:1rem;cursor:pointer;transition:all 0.15s;" onclick="relatorioResumoFinanceiro()" onmouseover="this.style.borderColor='#1A472A'" onmouseout="this.style.borderColor='#E2DFD8'">
+          <div style="font-size:22px;margin-bottom:6px;">📈</div>
+          <div style="font-size:13px;font-weight:500;color:#1A472A;">Resumo financeiro</div>
+          <div style="font-size:11px;color:#9C9A94;margin-top:2px;">Visão geral</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ABA AGENDA -->
+  <div class="tab-panel" id="aba-agenda">
+    <div class="agenda-grid">
+      <!-- COLUNA ESQUERDA: formulário + mini calendário -->
+      <div>
+        <div class="agenda-mini-cal">
+          <div class="cal-header">
+            <button onclick="calMes(-1)">&#8249;</button>
+            <span id="cal-titulo"></span>
+            <button onclick="calMes(1)">&#8250;</button>
+          </div>
+          <div class="cal-grid" id="cal-grid"></div>
+        </div>
+        <div class="agenda-form">
+          <h3>➕ Novo compromisso</h3>
+          <div class="fr"><label>Título *</label><input type="text" id="ag-titulo" placeholder="Ex: Renovar certificado da empresa X"></div>
+          <div class="fr"><label>Data *</label><input type="date" id="ag-data"></div>
+          <div class="fr"><label>Hora</label><input type="time" id="ag-hora" placeholder="09:00"></div>
+          <div class="fr"><label>Categoria</label>
+            <select id="ag-cat">
+              <option value="certificado">🔐 Certificado</option>
+              <option value="reuniao">👥 Reunião</option>
+              <option value="financeiro">💰 Financeiro</option>
+              <option value="cliente">🤝 Cliente</option>
+              <option value="outro">📌 Outro</option>
+            </select>
+          </div>
+          <div class="fr"><label>Observação</label><textarea id="ag-obs" placeholder="Detalhes do compromisso..."></textarea></div>
+          <div class="fr"><label>Lembrete</label>
+            <select id="ag-lembrete">
+              <option value="0">No horário</option>
+              <option value="15">15 minutos antes</option>
+              <option value="30">30 minutos antes</option>
+              <option value="60">1 hora antes</option>
+              <option value="1440">1 dia antes</option>
+            </select>
+          </div>
+          <button class="btn bp" onclick="salvarAgenda()" style="width:100%;justify-content:center;margin-top:4px;">Salvar compromisso</button>
+        </div>
+      </div>
+      <!-- COLUNA DIREITA: lista de compromissos -->
+      <div>
+        <div class="agenda-filtros">
+          <button class="btn bp bsm" onclick="filtrarAgenda('todos')">Todos</button>
+          <button class="btn bo bsm" onclick="filtrarAgenda('hoje')">📅 Hoje</button>
+          <button class="btn bo bsm" onclick="filtrarAgenda('semana')">📆 Esta semana</button>
+          <button class="btn bd bsm" onclick="filtrarAgenda('atrasado')">⚠️ Atrasados</button>
+          <button class="btn bs bsm" onclick="filtrarAgenda('certificado')">🔐 Certificados</button>
+        </div>
+        <div class="agenda-lista" id="agenda-lista"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ABA TORGE -->
+  <div class="tab-panel" id="aba-torge">
+    <div class="torge-hdr">
+      <div class="torge-logo">💻 Torge</div>
+      <div class="torge-sub">Clique em qualquer módulo para abrir no Torge</div>
+    </div>
+    <div class="torge-grid">
+      <div class="tc" onclick="window.open('https://app.torge.com.br/#/cadastros/clientes','_blank')"><div class="ti">👥</div><div class="tn">Clientes</div></div>
+      <div class="tc" onclick="window.open('https://app.torge.com.br/#/cadastros/produtos','_blank')"><div class="ti">📦</div><div class="tn">Produtos</div></div>
+      <div class="tc" onclick="window.open('https://app.torge.com.br/#/faturamento','_blank')"><div class="ti">📄</div><div class="tn">Faturamento</div></div>
+      <div class="tc" onclick="window.open('https://app.torge.com.br/#/financeiro/contas-receber','_blank')"><div class="ti">💰</div><div class="tn">Contas a Receber</div></div>
+      <div class="tc" onclick="window.open('https://app.torge.com.br/#/orcamento','_blank')"><div class="ti">📋</div><div class="tn">Orçamento</div></div>
+      <div class="tc" onclick="window.open('https://app.torge.com.br/#/entradas/nota-entrada','_blank')"><div class="ti">📥</div><div class="tn">Nota de Entrada</div></div>
+      <div class="tc" onclick="window.open('https://app.torge.com.br/#/vendas/pedido-venda','_blank')"><div class="ti">🛒</div><div class="tn">Pedido de Venda</div></div>
+      <div class="tc" onclick="window.open('https://app.torge.com.br/#/relatorios','_blank')"><div class="ti">📊</div><div class="tn">Relatórios</div></div>
+      <div class="tc tc-login" onclick="window.open('https://www.torge.com.br/#/acesso-login','_blank')"><div class="ti">🔑</div><div class="tn">Entrar no Torge</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NOVO CERTIFICADO -->
+<div class="overlay" id="m-cert">
+  <div class="modal">
+    <h2>Novo certificado</h2>
+    <div class="fg">
+      <div class="fr" style="grid-column:span 2"><label>Nome do cliente *</label><input type="text" id="c-nome" placeholder="Ex: Empresa ABC Ltda"></div>
+      <div class="fr"><label>CNPJ / CPF</label><input type="text" id="c-cnpj" placeholder="CNPJ ou CPF"></div>
+      <div class="fr"><label>Tipo *</label>
+        <select id="c-tipo">
+          <option>A1 - e-CNPJ</option><option>A3 - e-CNPJ</option><option>A1 - e-CPF</option><option>A3 - e-CPF</option><option>NF-e</option><option>SSL/TLS</option><option>Outro</option>
+        </select>
+      </div>
+      <div class="fr"><label>Data de vencimento *</label><input type="date" id="c-venc"></div>
+      <div class="fr"><label>Responsável</label><input type="text" id="c-resp" placeholder="Nome do responsável"></div>
+      <div class="fr"><label>WhatsApp</label><input type="text" id="c-tel" placeholder="(xx) 9xxxx-xxxx"></div>
+      <div class="fr" style="grid-column:span 2"><label>E-mail</label><input type="email" id="c-email" placeholder="email@empresa.com.br"></div>
+    </div>
+    <div class="mf">
+      <button class="btn bo" onclick="fechar('m-cert')">Cancelar</button>
+      <button class="btn bp" onclick="salvarCert()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ENVIO -->
+<div class="overlay" id="m-envio">
+  <div class="modal">
+    <h2 id="e-titulo">Enviar alerta</h2>
+    <p class="slabel">Mensagem que será enviada</p>
+    <div class="msgbox" id="e-msg"></div>
+    <div class="fr"><label>WhatsApp</label><input type="text" id="e-tel" placeholder="(xx) 9xxxx-xxxx"></div>
+    <div class="mf" style="flex-direction:column;align-items:stretch;">
+      <button class="btn bp" onclick="enviarWpp()" style="justify-content:center;">💬 Abrir WhatsApp com mensagem pronta</button>
+      <button class="btn bo" onclick="copiarMsg()" style="justify-content:center;">📋 Copiar mensagem</button>
+      <button class="btn bo" onclick="fechar('m-envio')" style="justify-content:center;">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NOVO CLIENTE -->
+<div class="overlay" id="m-cliente">
+  <div class="modal" style="max-width:540px;">
+    <h2>Novo cliente</h2>
+    <div style="background:#E8F0EB;border-radius:8px;padding:12px 14px;margin-bottom:1rem;display:flex;gap:10px;align-items:flex-end;">
+      <div style="flex:1;">
+        <label style="display:block;font-size:12px;font-weight:500;color:#1A472A;margin-bottom:5px;">🔍 Consultar CNPJ na Receita Federal</label>
+        <input type="text" id="cl-cnpj-busca" placeholder="Digite o CNPJ (somente números)" maxlength="18" style="width:100%;background:#fff;border:1px solid #C5D9CC;border-radius:6px;padding:8px 12px;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;" onkeydown="if(event.key==='Enter')consultarCNPJ()">
+      </div>
+      <button class="btn bp" onclick="consultarCNPJ()" id="btn-consultar" style="white-space:nowrap;height:38px;">Consultar</button>
+    </div>
+    <div id="cnpj-status" style="font-size:12px;margin:-8px 0 12px;display:none;"></div>
+    <div class="fg">
+      <div class="fr" style="grid-column:span 2"><label>Razão Social / Nome *</label><input type="text" id="cl-nome" placeholder="Nome do cliente"></div>
+      <div class="fr"><label>CPF / CNPJ</label><input type="text" id="cl-doc" placeholder="CPF ou CNPJ"></div>
+      <div class="fr"><label>Telefone / WhatsApp</label><input type="text" id="cl-tel" placeholder="(xx) 9xxxx-xxxx"></div>
+      <div class="fr" style="grid-column:span 2"><label>E-mail</label><input type="email" id="cl-email" placeholder="email@cliente.com.br"></div>
+      <div class="fr" style="grid-column:span 2"><label>Endereço</label><input type="text" id="cl-end" placeholder="Rua, número, bairro, cidade"></div>
+      <div class="fr"><label>Município</label><input type="text" id="cl-cidade" placeholder="Cidade"></div>
+      <div class="fr"><label>UF</label><input type="text" id="cl-uf" placeholder="BA" maxlength="2"></div>
+      <div class="fr" style="grid-column:span 2"><label>Observações</label><textarea id="cl-obs" placeholder="Informações adicionais..."></textarea></div>
+    </div>
+    <div class="mf">
+      <button class="btn bo" onclick="fechar('m-cliente')">Cancelar</button>
+      <button class="btn bp" onclick="salvarCliente()">Salvar cliente</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDITAR CLIENTE -->
+<div class="overlay" id="m-editar-cliente">
+  <div class="modal" style="max-width:540px;">
+    <h2>✏️ Alterar cliente</h2>
+    <input type="hidden" id="ec-id">
+    <div class="fg">
+      <div class="fr" style="grid-column:span 2"><label>Razão Social / Nome *</label><input type="text" id="ec-nome" placeholder="Nome do cliente"></div>
+      <div class="fr"><label>CPF / CNPJ</label><input type="text" id="ec-doc" placeholder="CPF ou CNPJ"></div>
+      <div class="fr"><label>Telefone / WhatsApp</label><input type="text" id="ec-tel" placeholder="(xx) 9xxxx-xxxx"></div>
+      <div class="fr" style="grid-column:span 2"><label>E-mail</label><input type="email" id="ec-email" placeholder="email@cliente.com.br"></div>
+      <div class="fr" style="grid-column:span 2"><label>Endereço</label><input type="text" id="ec-end" placeholder="Rua, número, bairro, cidade"></div>
+      <div class="fr" style="grid-column:span 2"><label>Observações</label><textarea id="ec-obs" placeholder="Informações adicionais..."></textarea></div>
+    </div>
+    <div class="mf">
+      <button class="btn bo" onclick="fechar('m-editar-cliente')">Cancelar</button>
+      <button class="btn bp" onclick="salvarEdicaoCliente()">Salvar alterações</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDITAR RECIBO -->
+<div class="overlay" id="m-editar-recibo">
+  <div class="modal" style="max-width:540px;">
+    <h2>✏️ Alterar recibo</h2>
+    <input type="hidden" id="er-id">
+    <div class="fg">
+      <div class="fr" style="grid-column:span 2"><label>Descrição do serviço *</label><textarea id="er-servico"></textarea></div>
+      <div class="fr"><label>Valor (R$) *</label><input type="number" id="er-valor" step="0.01" min="0"></div>
+      <div class="fr"><label>Data de emissão *</label><input type="date" id="er-data"></div>
+      <div class="fr"><label>Forma de pagamento</label>
+        <select id="er-pgto">
+          <option value="PIX">PIX</option>
+          <option value="Dinheiro">Dinheiro</option>
+          <option value="Cartão de débito">Cartão de débito</option>
+          <option value="Cartão de crédito">Cartão de crédito</option>
+          <option value="Transferência">Transferência</option>
+          <option value="Boleto">Boleto</option>
+          <option value="Parcelado">Parcelado</option>
+        </select>
+      </div>
+      <div class="fr"><label>Vencimento</label><input type="date" id="er-venc"></div>
+      <div class="fr"><label>Status</label>
+        <select id="er-status">
+          <option value="aberto">Em aberto</option>
+          <option value="pago">Pago</option>
+        </select>
+      </div>
+    </div>
+    <div class="mf">
+      <button class="btn bo" onclick="fechar('m-editar-recibo')">Cancelar</button>
+      <button class="btn bp" onclick="salvarEdicaoRecibo()">Salvar alterações</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NOVO RECIBO -->
+<div class="overlay" id="m-recibo">
+  <div class="modal" style="max-width:540px;">
+    <h2>Novo recibo</h2>
+    <div class="fg">
+      <div class="fr" style="grid-column:span 2">
+        <label>Cliente *</label>
+        <select id="r-cliente"><option value="">Selecione um cliente...</option></select>
+      </div>
+      <div class="fr" style="grid-column:span 2"><label>Descrição do serviço *</label><textarea id="r-servico" placeholder="Ex: Renovação de certificado digital A1 e-CNPJ..."></textarea></div>
+      <div class="fr"><label>Valor total (R$) *</label><input type="number" id="r-valor" placeholder="0,00" step="0.01" min="0" oninput="calcParcelas()"></div>
+      <div class="fr"><label>Data de emissão *</label><input type="date" id="r-data"></div>
+      <div class="fr"><label>Forma de pagamento</label>
+        <select id="r-pgto" onchange="toggleParcelas()">
+          <option value="PIX">PIX</option>
+          <option value="Dinheiro">Dinheiro</option>
+          <option value="Cartão de débito">Cartão de débito</option>
+          <option value="Cartão de crédito">Cartão de crédito</option>
+          <option value="Transferência">Transferência</option>
+          <option value="Boleto">Boleto</option>
+          <option value="Parcelado">Parcelado</option>
+        </select>
+      </div>
+      <div class="fr"><label>1º vencimento *</label><input type="date" id="r-venc" oninput="previewReplica()"></div>
+      <div class="fr" id="bloco-parcelas" style="grid-column:span 2;display:none;">
+        <label>Número de parcelas</label>
+        <select id="r-parcelas" onchange="calcParcelas()">
+          <option value="2">2x</option><option value="3">3x</option><option value="4">4x</option>
+          <option value="5">5x</option><option value="6">6x</option><option value="10">10x</option><option value="12">12x</option>
+        </select>
+        <div id="parcelas-preview" style="margin-top:8px;font-size:12px;color:#1A472A;background:#E8F0EB;border-radius:6px;padding:8px 12px;"></div>
+      </div>
+      <div class="fr" style="grid-column:span 2">
+        <label>Status</label>
+        <select id="r-status">
+          <option value="aberto">Em aberto</option>
+          <option value="pago">Pago</option>
+        </select>
+      </div>
+      <div class="fr" style="grid-column:span 2">
+        <label>🔁 Replicar recibo (gerar vários de uma vez)</label>
+        <select id="r-replicar" onchange="previewReplica()">
+          <option value="1">Não replicar — gerar apenas 1 recibo</option>
+          <option value="2">Replicar por 2 meses</option>
+          <option value="3">Replicar por 3 meses</option>
+          <option value="4">Replicar por 4 meses</option>
+          <option value="6">Replicar por 6 meses</option>
+          <option value="12">Replicar por 12 meses</option>
+          <option value="24">Replicar por 24 meses</option>
+        </select>
+        <div id="replica-preview" style="margin-top:6px;font-size:12px;color:#1A472A;background:#E8F0EB;border-radius:6px;padding:8px 12px;display:none;"></div>
+      </div>
+    </div>
+    <div class="mf">
+      <button class="btn bo" onclick="fechar('m-recibo')">Cancelar</button>
+      <button class="btn bp" onclick="salvarRecibo()">Gerar recibo</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL VER RECIBO -->
+<div class="overlay" id="m-ver-recibo">
+  <div class="modal" style="max-width:650px;">
+    <div id="recibo-conteudo"></div>
+    <div class="mf">
+      <button class="btn bo" onclick="fechar('m-ver-recibo')">Fechar</button>
+      <button class="btn bp" onclick="imprimirRecibo()">🖨️ Imprimir recibo</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL SENHA RECIBOS -->
+<div class="senha-overlay" id="m-senha-rec">
+  <div class="senha-box">
+    <div class="si">🔒</div>
+    <h3>Acesso restrito</h3>
+    <p>Digite a senha para acessar os Recibos</p>
+    <input type="password" id="senha-rec-input" placeholder="••••••" maxlength="10" onkeydown="if(event.key==='Enter')verificarSenhaRec()">
+    <div class="err" id="senha-rec-err">Senha incorreta.</div>
+    <button class="btn bp" onclick="verificarSenhaRec()" style="width:100%;justify-content:center;">Entrar</button>
+    <button class="btn bo" onclick="cancelarSenhaRec()" style="width:100%;justify-content:center;margin-top:8px;">Cancelar</button>
+  </div>
+</div>
+
+<div id="print-area"></div>
+<div class="notif-som" id="notif-som">🔔 <span id="notif-som-txt"></span></div>
+
+<!-- MODAL VISUALIZAÇÃO DE RELATÓRIO -->
+<div class="overlay" id="m-relatorio" style="z-index:300;align-items:flex-start;padding:1rem;overflow-y:auto;">
+  <div style="background:#fff;border-radius:12px;border:1px solid #E2DFD8;width:100%;max-width:800px;margin:auto;box-shadow:0 8px 32px rgba(0,0,0,0.15);">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:1rem 1.5rem;border-bottom:1px solid #E2DFD8;position:sticky;top:0;background:#fff;border-radius:12px 12px 0 0;z-index:1;">
+      <div style="font-size:15px;font-weight:600;color:#1A1916;" id="rel-modal-titulo">Relatório</div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn bp" onclick="imprimirRelatorioModal()">🖨️ Imprimir</button>
+        <button class="btn bo" onclick="fechar('m-relatorio')">✕ Fechar</button>
+      </div>
+    </div>
+    <div id="rel-modal-conteudo" style="padding:1.5rem;"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// =====================================================
+// LOGIN
+// =====================================================
+const SENHA = 'brc';
+
+function entrar() {
+  const s = document.getElementById('login-senha').value;
+  if (s === SENHA) {
+    document.getElementById('login-screen').style.display = 'none';
+    iniciar();
+  } else {
+    document.getElementById('login-err').style.display = 'block';
+    document.getElementById('login-senha').value = '';
+  }
+}
+
+function sair() {
+  if (!confirm('Deseja sair do sistema?')) return;
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('login-senha').value = '';
+  document.getElementById('login-err').style.display = 'none';
+}
+
+// =====================================================
+// DADOS
+// =====================================================
+function load(k) { try { const d=localStorage.getItem(k); return d?JSON.parse(d):[]; } catch(e){ return []; } }
+function save(k,v) { try { localStorage.setItem(k,JSON.stringify(v)); } catch(e){} }
+
+let CERTS = load('brc_certs');
+let CLIENTES = load('brc_clientes2');
+let RECIBOS = load('brc_recibos');
+let CID = parseInt(localStorage.getItem('brc_cid')||'1');
+let CLID = parseInt(localStorage.getItem('brc_clid')||'1');
+let RID = parseInt(localStorage.getItem('brc_rid')||'1');
+let curCert = null;
+
+const hoje = new Date(); hoje.setHours(0,0,0,0);
+
+// =====================================================
+// AUXILIARES
+// =====================================================
+function dias(v){ return Math.round((new Date(v+'T00:00:00')-hoje)/86400000); }
+function st(d){ return d<0?'vencido':d<=15?'critico':d<=30?'atencao':'ok'; }
+function fmt(iso){ if(!iso) return '—'; const[y,m,d]=iso.split('-'); return d+'/'+m+'/'+y; }
+function isPF(t){ return t&&t.toLowerCase().includes('cpf'); }
+function fmtVal(v){ return 'R$ '+parseFloat(v).toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,'.'); }
+function numExtenso(v){
+  const n=parseFloat(v);
+  if(isNaN(n)) return '';
+  const u=['','um','dois','três','quatro','cinco','seis','sete','oito','nove','dez','onze','doze','treze','quatorze','quinze','dezesseis','dezessete','dezoito','dezenove'];
+  const d10=['','','vinte','trinta','quarenta','cinquenta','sessenta','setenta','oitenta','noventa'];
+  const c=['','cem','duzentos','trezentos','quatrocentos','quinhentos','seiscentos','setecentos','oitocentos','novecentos'];
+  const inteiro=Math.floor(n), cent=Math.round((n-inteiro)*100);
+  function conv(x){
+    if(x===0) return '';
+    if(x===100) return 'cem';
+    if(x<20) return u[x];
+    const dz=Math.floor(x/10), un=x%10;
+    if(Math.floor(x/100)>0){ const cc=Math.floor(x/100),resto=x%100; return (cc===1&&resto>0?'cento':c[cc])+(resto>0?' e '+conv(resto):''); }
+    return d10[dz]+(un>0?' e '+u[un]:'');
+  }
+  let res='';
+  if(inteiro===0) res='zero reais';
+  else if(inteiro===1) res='um real';
+  else res=conv(inteiro)+' reais';
+  if(cent>0) res+=' e '+(cent===1?'um centavo':conv(cent)+' centavos');
+  return res.charAt(0).toUpperCase()+res.slice(1);
+}
+
+// =====================================================
+// MENSAGENS
+// =====================================================
+function gerarMsg(c) {
+  const d=dias(c.venc), s=st(d), pf=isPF(c.tipo);
+  const tp=pf?'Pessoa Física':'Pessoa Jurídica';
+  const qm=pf?'do(a) *'+c.nome+'*':'da empresa *'+c.nome+'*';
+  if(d<0){
+    if(pf) return 'Olá!\n\nInformamos que o certificado digital ('+tp+') '+qm+' está vencido.\n\nSem um certificado digital válido, o(a) senhor(a) ficará impedido(a) de assinar documentos digitalmente e acessar sistemas governamentais.\n\nRecomendamos a renovação imediata.\n\nAtenciosamente,\nCarlos Wellington\n📞 74 99998-5392';
+    return 'Olá!\n\nInformamos que o certificado digital '+qm+' ('+tp+') está vencido.\n\nSem um certificado digital válido, a contabilidade fica impedida de transmitir as obrigações acessórias, como SPED Fiscal, ECF, DCTF, eSocial, entre outras.\n\nAlém disso, podem ocorrer dificuldades na emissão de guias de tributos (DAS, DARF, GPS).\n\nRecomendamos a renovação imediata.\n\nAtenciosamente,\nCarlos Wellington\n📞 74 99998-5392';
+  }
+  if(s==='critico') return 'Olá!\n\nVerificamos que até o momento '+(pf?'o(a) senhor(a) *'+c.nome+'*':'a empresa *'+c.nome+'*')+' ainda não compareceu para realizar a renovação do certificado digital ('+tp+').\n\nPedimos que entre em contato o quanto antes para realizarmos a renovação.\n\nFicamos à disposição para agendar o atendimento.\n\nAtenciosamente,\nCarlos Wellington\n📞 74 99998-5392';
+  if(pf) return 'Olá!\n\nInformamos que o certificado digital ('+tp+') '+qm+' irá vencer em *'+d+' dia(s)* (em '+fmt(c.venc)+').\n\nRecomendamos a renovação antes do vencimento.\n\nAtenciosamente,\nCarlos Wellington\n📞 74 99998-5392';
+  return 'Olá!\n\nInformamos que o certificado digital '+qm+' ('+tp+') irá vencer em *'+d+' dia(s)* (em '+fmt(c.venc)+').\n\nSem um certificado digital válido, a contabilidade fica impedida de transmitir as obrigações acessórias.\n\nRecomendamos a renovação antes do vencimento.\n\nAtenciosamente,\nCarlos Wellington\n📞 74 99998-5392';
+}
+
+// =====================================================
+// ABAS
+// =====================================================
+const SENHA_REC = '1';
+let recibosLiberado = false;
+let btnReciboPendente = null;
+
+function aba(id, btn) {
+  if (id === 'recibos' && !recibosLiberado) {
+    btnReciboPendente = btn;
+    document.getElementById('senha-rec-input').value = '';
+    document.getElementById('senha-rec-err').style.display = 'none';
+    document.getElementById('m-senha-rec').classList.add('open');
+    setTimeout(() => document.getElementById('senha-rec-input').focus(), 100);
+    return;
+  }
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('aba-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+function verificarSenhaRec() {
+  const s = document.getElementById('senha-rec-input').value;
+  if (s === SENHA_REC) {
+    recibosLiberado = true;
+    document.getElementById('m-senha-rec').classList.remove('open');
+    if (btnReciboPendente) aba('recibos', btnReciboPendente);
+  } else {
+    document.getElementById('senha-rec-err').style.display = 'block';
+    document.getElementById('senha-rec-input').value = '';
+  }
+}
+
+function cancelarSenhaRec() {
+  document.getElementById('m-senha-rec').classList.remove('open');
+  btnReciboPendente = null;
+}
+
+// =====================================================
+// CERTIFICADOS
+// =====================================================
+function renderMetrics() {
+  const ct={vencido:0,critico:0,atencao:0,ok:0};
+  CERTS.forEach(x=>ct[st(dias(x.venc))]++);
+  document.getElementById('metrics').innerHTML=
+    '<div class="metric md"><div class="lbl">Vencidos</div><div class="val">'+ct.vencido+'</div><div class="sub">Renovação urgente</div></div>'+
+    '<div class="metric mw"><div class="lbl">Crítico</div><div class="val">'+ct.critico+'</div><div class="sub">Até 15 dias</div></div>'+
+    '<div class="metric mw"><div class="lbl">Atenção</div><div class="val">'+ct.atencao+'</div><div class="sub">Até 30 dias</div></div>'+
+    '<div class="metric mg"><div class="lbl">Em dia</div><div class="val">'+ct.ok+'</div><div class="sub">Total: '+CERTS.length+'</div></div>';
+}
+
+function renderCerts() {
+  const q=document.getElementById('busca').value.toLowerCase();
+  const f=document.getElementById('filtro').value;
+  let lst=CERTS.filter(c=>{ const s=st(dias(c.venc)); if(f!=='todos'&&s!==f) return false; if(q&&!c.nome.toLowerCase().includes(q)&&!(c.cnpj||'').includes(q)) return false; return true; });
+  lst.sort((a,b)=>dias(a.venc)-dias(b.venc));
+  const tb=document.getElementById('tbody-certs');
+  if(!lst.length){ tb.innerHTML='<tr class="empty"><td colspan="7">Nenhum certificado. Clique em "+ Novo certificado" para cadastrar.</td></tr>'; return; }
+  const bl={vencido:'bv',critico:'bc',atencao:'ba',ok:'bk'};
+  const sl={vencido:'Vencido',critico:'Crítico',atencao:'Atenção',ok:'Em dia'};
+  const dl={vencido:'dv',critico:'dc',atencao:'da',ok:'dk'};
+  tb.innerHTML=lst.map(c=>{ const d=dias(c.venc),s=st(d),dTxt=d<0?Math.abs(d)+'d atrás':d+'d';
+    return '<tr><td>'+c.nome+'</td><td>'+(c.cnpj||'—')+'</td><td>'+c.tipo+'</td><td>'+fmt(c.venc)+'</td>'+
+      '<td><span class="badge '+bl[s]+'">'+sl[s]+'</span></td>'+
+      '<td><span class="'+dl[s]+'">'+dTxt+'</span></td>'+
+      '<td><div class="acts"><button class="btn bs bsm" onclick="abrirEnvio('+c.id+')">Enviar</button>'+
+      '<button class="btn bd bsm" onclick="removerCert('+c.id+')">Remover</button></div></td></tr>';
+  }).join('');
+}
+
+function render(){ renderMetrics(); renderCerts(); }
+
+function abrirNovoCert(){
+  ['c-nome','c-cnpj','c-resp','c-tel','c-email'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('c-venc').value='';
+  document.getElementById('m-cert').classList.add('open');
+}
+
+function salvarCert(){
+  const nome=document.getElementById('c-nome').value.trim();
+  const venc=document.getElementById('c-venc').value;
+  if(!nome||!venc){ toast('Preencha o nome e a data de vencimento.','e'); return; }
+  CERTS.push({id:CID++,nome,cnpj:document.getElementById('c-cnpj').value||'',tipo:document.getElementById('c-tipo').value,venc,resp:document.getElementById('c-resp').value,tel:document.getElementById('c-tel').value,email:document.getElementById('c-email').value});
+  save('brc_certs',CERTS); localStorage.setItem('brc_cid',String(CID));
+  fechar('m-cert'); render(); toast('Certificado cadastrado!');
+}
+
+function removerCert(id){ if(!confirm('Remover este certificado?')) return; CERTS=CERTS.filter(c=>c.id!==id); save('brc_certs',CERTS); render(); toast('Removido.'); }
+
+function abrirEnvio(id){
+  curCert=CERTS.find(c=>c.id===id);
+  document.getElementById('e-titulo').textContent=curCert.nome;
+  document.getElementById('e-msg').textContent=gerarMsg(curCert);
+  document.getElementById('e-tel').value=curCert.tel||'';
+  document.getElementById('m-envio').classList.add('open');
+}
+
+function enviarWpp(){
+  const tel=document.getElementById('e-tel').value.replace(/\D/g,'');
+  if(!tel){ toast('Digite o número do WhatsApp!','e'); return; }
+  window.open('https://wa.me/55'+tel+'?text='+encodeURIComponent(document.getElementById('e-msg').textContent),'_blank');
+  fechar('m-envio'); toast('WhatsApp aberto!');
+}
+
+function copiarMsg(){ navigator.clipboard.writeText(document.getElementById('e-msg').textContent).then(()=>toast('Mensagem copiada!')).catch(()=>toast('Erro.','e')); }
+
+function enviarMassa(){
+  const ur=CERTS.filter(c=>st(dias(c.venc))!=='ok');
+  if(!ur.length){ toast('Nenhum certificado urgente.'); return; }
+  let n=0; ur.forEach(c=>{ const t=(c.tel||'').replace(/\D/g,''); if(!t) return; window.open('https://wa.me/55'+t+'?text='+encodeURIComponent(gerarMsg(c)),'_blank'); n++; });
+  toast(n>0?n+' WhatsApp(s) abertos!':'Nenhum cliente com WhatsApp.');
+}
+
+function exportarExcel(){
+  let lst=CERTS.slice().sort((a,b)=>dias(a.venc)-dias(b.venc));
+  const SP={vencido:'Vencido',critico:'Crítico',atencao:'Atenção',ok:'Em dia'};
+  let csv='\uFEFF'+'Cliente;CNPJ/CPF;Tipo;Vencimento;Status;Dias;Responsável;WhatsApp;E-mail\n';
+  lst.forEach(c=>{ const d=dias(c.venc),s=st(d),dt=d<0?'Vencido há '+Math.abs(d)+'d':d+'d'; csv+=[c.nome,c.cnpj||'',c.tipo,fmt(c.venc),SP[s],dt,c.resp||'',c.tel||'',c.email||''].map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(';')+'\n'; });
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));
+  a.download='certificados_'+new Date().toLocaleDateString('pt-BR').replace(/\//g,'-')+'.csv'; a.click(); toast('Planilha exportada!');
+}
+
+// =====================================================
+// CLIENTES
+// =====================================================
+function renderClientes(){
+  const q=document.getElementById('busca-cli').value.toLowerCase();
+  let lst=CLIENTES.filter(c=>!q||c.nome.toLowerCase().includes(q)||(c.doc||'').includes(q));
+  const tb=document.getElementById('tbody-clientes');
+  if(!lst.length){ tb.innerHTML='<tr class="empty"><td colspan="6">Nenhum cliente cadastrado.</td></tr>'; return; }
+  tb.innerHTML=lst.map(c=>'<tr><td>'+c.nome+'</td><td>'+(c.doc||'—')+'</td><td>'+(c.tel||'—')+'</td><td>'+(c.email||'—')+'</td><td>'+(c.end||'—')+'</td>'+
+    '<td><div class="acts">'+
+    '<button class="btn binfo bsm" onclick="usarCliente('+c.id+')">Recibo</button>'+
+    '<button class="btn bs bsm" onclick="editarCliente('+c.id+')">✏️ Alterar</button>'+
+    '<button class="btn bd bsm" onclick="removerCliente('+c.id+')">✕ Excluir</button>'+
+    '</div></td></tr>').join('');
+}
+
+async function consultarCNPJ(){
+  const raw = document.getElementById('cl-cnpj-busca').value.replace(/\D/g,'');
+  if(raw.length !== 14){ toast('Digite um CNPJ válido com 14 números.','e'); return; }
+  const btn = document.getElementById('btn-consultar');
+  const status = document.getElementById('cnpj-status');
+  btn.textContent = 'Consultando...';
+  btn.disabled = true;
+  status.style.display = 'block';
+  status.style.color = '#6B6860';
+  status.textContent = '⏳ Consultando a Receita Federal...';
+  try {
+    const res = await fetch('https://brasilapi.com.br/api/cnpj/v1/'+raw);
+    if(!res.ok) throw new Error('CNPJ não encontrado');
+    const d = await res.json();
+    document.getElementById('cl-nome').value = d.razao_social || '';
+    document.getElementById('cl-doc').value = raw.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/,'$1.$2.$3/$4-$5');
+    document.getElementById('cl-email').value = d.email || '';
+    document.getElementById('cl-tel').value = d.ddd_telefone_1 ? '('+d.ddd_telefone_1.substring(0,2)+') '+d.ddd_telefone_1.substring(2) : '';
+    const end = [d.logradouro, d.numero, d.complemento, d.bairro].filter(Boolean).join(', ');
+    document.getElementById('cl-end').value = end;
+    document.getElementById('cl-cidade').value = d.municipio || '';
+    document.getElementById('cl-uf').value = d.uf || '';
+    status.style.color = '#1A472A';
+    status.textContent = '✅ Dados preenchidos automaticamente! Confira e salve.';
+    toast('CNPJ encontrado! Dados preenchidos.');
+  } catch(e) {
+    status.style.color = '#8B1A1A';
+    status.textContent = '❌ CNPJ não encontrado. Preencha os dados manualmente.';
+    toast('CNPJ não encontrado.','e');
+  }
+  btn.textContent = 'Consultar';
+  btn.disabled = false;
+}
+
+function abrirNovoCliente(){
+  ['cl-nome','cl-doc','cl-tel','cl-email','cl-end','cl-cidade','cl-uf','cl-obs','cl-cnpj-busca'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('cnpj-status').style.display='none';
+  document.getElementById('m-cliente').classList.add('open');
+}
+
+function salvarCliente(){
+  const nome=document.getElementById('cl-nome').value.trim();
+  if(!nome){ toast('Preencha o nome do cliente.','e'); return; }
+  const cidade=document.getElementById('cl-cidade').value; const uf=document.getElementById('cl-uf').value; const endCompleto=[document.getElementById('cl-end').value,cidade,uf].filter(Boolean).join(', ');
+  CLIENTES.push({id:CLID++,nome,doc:document.getElementById('cl-doc').value,tel:document.getElementById('cl-tel').value,email:document.getElementById('cl-email').value,end:endCompleto,obs:document.getElementById('cl-obs').value});
+  save('brc_clientes2',CLIENTES); localStorage.setItem('brc_clid',String(CLID));
+  fechar('m-cliente'); renderClientes(); atualizarSelectClientes(); toast('Cliente cadastrado!');
+}
+
+function removerCliente(id){ if(!confirm('Remover este cliente?')) return; CLIENTES=CLIENTES.filter(c=>c.id!==id); save('brc_clientes2',CLIENTES); renderClientes(); atualizarSelectClientes(); toast('Removido.'); }
+
+function usarCliente(id){
+  abrirNovoRecibo();
+  setTimeout(()=>{ document.getElementById('r-cliente').value=id; },100);
+}
+
+// =====================================================
+// RECIBOS
+// =====================================================
+function atualizarSelectClientes(){
+  const sel=document.getElementById('r-cliente');
+  sel.innerHTML='<option value="">Selecione um cliente...</option>';
+  CLIENTES.forEach(c=>{ const op=document.createElement('option'); op.value=c.id; op.textContent=c.nome; sel.appendChild(op); });
+}
+
+function statusRec(r){
+  if(r.status==='pago') return 'pago';
+  if(r.venc && new Date(r.venc+'T00:00:00') < hoje) return 'vencido';
+  return 'aberto';
+}
+
+function renderMetricsRec(){
+  const total=RECIBOS.length;
+  const pagos=RECIBOS.filter(r=>r.status==='pago').length;
+  const vencidos=RECIBOS.filter(r=>statusRec(r)==='vencido').length;
+  const abertos=RECIBOS.filter(r=>statusRec(r)==='aberto').length;
+  const totalVal=RECIBOS.filter(r=>r.status==='pago').reduce((s,r)=>s+parseFloat(r.valor||0),0);
+  document.getElementById('metrics-rec').innerHTML=
+    '<div class="metric mg"><div class="lbl">Pagos</div><div class="val">'+pagos+'</div><div class="sub">'+fmtVal(totalVal)+'</div></div>'+
+    '<div class="metric mw"><div class="lbl">Em aberto</div><div class="val">'+abertos+'</div><div class="sub">A receber</div></div>'+
+    '<div class="metric md"><div class="lbl">Vencidos</div><div class="val">'+vencidos+'</div><div class="sub">Cobrar!</div></div>'+
+    '<div class="metric"><div class="lbl">Total</div><div class="val" style="color:#1A1916">'+total+'</div><div class="sub">Recibos gerados</div></div>';
+}
+
+function atualizarFiltroMes(){
+  const sel=document.getElementById('filtro-mes');
+  const atual=sel.value;
+  const meses=new Set();
+  RECIBOS.forEach(r=>{ if(r.data) meses.add(r.data.substring(0,7)); });
+  const sorted=[...meses].sort().reverse();
+  sel.innerHTML='<option value="todos">Todos os meses</option>';
+  sorted.forEach(m=>{
+    const[y,mo]=m.split('-');
+    const nomes=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+    const label=nomes[parseInt(mo)-1]+'/'+y;
+    sel.innerHTML+='<option value="'+m+'"'+(m===atual?' selected':'')+'>'+label+'</option>';
+  });
+}
+
+function renderRecibos(){
+  renderMetricsRec();
+  atualizarFiltroMes();
+  const q=document.getElementById('busca-rec').value.toLowerCase();
+  const f=document.getElementById('filtro-rec').value;
+  const mes=document.getElementById('filtro-mes').value;
+  let lst=RECIBOS.filter(r=>{
+    const s=statusRec(r);
+    if(f!=='todos'&&s!==f) return false;
+    if(mes!=='todos'&&(!r.data||!r.data.startsWith(mes))) return false;
+    if(q&&!r.cliente.toLowerCase().includes(q)&&!(r.servico||'').toLowerCase().includes(q)) return false;
+    return true;
+  });
+  lst.sort((a,b)=>{ if(statusRec(a)==='vencido'&&statusRec(b)!=='vencido') return -1; if(statusRec(b)==='vencido'&&statusRec(a)!=='vencido') return 1; return b.id-a.id; });
+  const tb=document.getElementById('tbody-recibos');
+  if(!lst.length){ tb.innerHTML='<tr class="empty"><td colspan="8">Nenhum recibo encontrado.</td></tr>'; return; }
+  const sbadge={pago:'<span class="badge bk">✅ Pago</span>',vencido:'<span class="badge bv">🔴 Vencido</span>',aberto:'<span class="badge bc">🟡 Em aberto</span>'};
+  tb.innerHTML=lst.map(r=>{
+    const s=statusRec(r);
+    const parc=r.parcelas?'<br><small style="color:#9C9A94">'+r.parcelas+'x de '+fmtVal(r.valorParcela)+'</small>':'';
+    return '<tr>'+
+      '<td><input type="checkbox" class="chk-rec" data-id="'+r.id+'" onchange="atualizarSelecao()" style="cursor:pointer;width:16px;height:16px;"></td>'+
+      '<td>#'+String(r.id).padStart(4,'0')+'</td>'+
+      '<td>'+r.cliente+'</td>'+
+      '<td>'+r.servico.substring(0,30)+(r.servico.length>30?'...':'')+'</td>'+
+      '<td>'+fmtVal(r.valor)+parc+'</td>'+
+      '<td>'+(r.venc?fmt(r.venc):'—')+'</td>'+
+      '<td>'+sbadge[s]+'</td>'+
+      '<td><div class="acts">'+
+        '<button class="btn binfo bsm" onclick="verRecibo('+r.id+')">Ver</button>'+
+        '<button class="btn bs bsm" onclick="editarRecibo('+r.id+')">✏️</button>'+
+        (s!=='pago'?'<button class="btn bs bsm" onclick="marcarPago('+r.id+')">✅ Pago</button>':'<button class="btn bo bsm" onclick="marcarAberto('+r.id+')">↩ Aberto</button>')+
+        (s==='vencido'||s==='aberto'?'<button class="btn bs bsm" onclick="cobrarWpp('+r.id+')">💬 Cobrar</button>':'')+
+        '<button class="btn bd bsm" onclick="removerRecibo('+r.id+')">✕</button>'+
+      '</div></td></tr>';
+  }).join('');
+  atualizarSelecao();
+}
+
+function toggleTodos(chk){
+  document.querySelectorAll('.chk-rec').forEach(c=>c.checked=chk);
+  atualizarSelecao();
+}
+
+function selecionarTodos(){
+  const todos=document.querySelectorAll('.chk-rec');
+  const algumDesmarcado=[...todos].some(c=>!c.checked);
+  todos.forEach(c=>c.checked=algumDesmarcado);
+  document.getElementById('chk-todos').checked=algumDesmarcado;
+  atualizarSelecao();
+}
+
+function atualizarSelecao(){
+  const selecionados=document.querySelectorAll('.chk-rec:checked');
+  const n=selecionados.length;
+  document.getElementById('qtd-sel').textContent=n;
+  document.getElementById('btn-impr-sel').style.display=n>0?'inline-flex':'none';
+  document.getElementById('btn-cobrar-sel').style.display=n>0?'inline-flex':'none';
+  const totalSel=document.getElementById('total-sel');
+  if(n>0){
+    const ids=[...selecionados].map(c=>parseInt(c.dataset.id));
+    const soma=ids.reduce((s,id)=>{ const r=RECIBOS.find(x=>x.id===id); return s+(r?parseFloat(r.valor||0):0); },0);
+    totalSel.style.display='inline-flex';
+    totalSel.textContent='💰 Total: '+fmtVal(soma);
+  } else {
+    totalSel.style.display='none';
+  }
+}
+
+function cobrarTodosVisiveis(){
+  const f=document.getElementById('filtro-rec').value;
+  const mes=document.getElementById('filtro-mes').value;
+  const q=document.getElementById('busca-rec').value.toLowerCase();
+  let lst=RECIBOS.filter(r=>{
+    const s=statusRec(r);
+    if(s==='pago') return false;
+    if(f!=='todos'&&s!==f) return false;
+    if(mes!=='todos'&&(!r.data||!r.data.startsWith(mes))) return false;
+    if(q&&!r.cliente.toLowerCase().includes(q)) return false;
+    return true;
+  });
+  if(!lst.length){ toast('Nenhum recibo em aberto encontrado.','e'); return; }
+  let enviados=0, semTel=[];
+  lst.forEach(r=>{
+    const tel=(r.clienteTel||'').replace(/\D/g,'');
+    if(!tel){ semTel.push(r.cliente); return; }
+    const s=statusRec(r);
+    const vencTxt=r.venc?'com vencimento em *'+fmt(r.venc)+'*':'em aberto';
+    const parc=r.parcelas?' ('+r.parcelas+'x de '+fmtVal(r.valorParcela)+')':'';
+    const atrasado=s==='vencido';
+    const msg='Olá, *'+r.cliente+'*!\n\n'+(atrasado?
+      '⚠️ Identificamos que o pagamento referente a:\n\n*'+r.servico+'*\nno valor de *'+fmtVal(r.valor)+parc+'* está *EM ATRASO* ('+vencTxt+').\n\nPedimos que regularize o quanto antes para evitar transtornos.':
+      '🔔 Lembramos que o pagamento referente a:\n\n*'+r.servico+'*\nno valor de *'+fmtVal(r.valor)+parc+'* está '+vencTxt+'.')+
+      '\n\n💳 *Chave PIX:* 74999985392 (Carlos Wellington)\n\nAtenciosamente,\nCarlos Wellington\n📞 74 99998-5392';
+    window.open('https://wa.me/55'+tel+'?text='+encodeURIComponent(msg),'_blank');
+    enviados++;
+  });
+  let aviso=enviados+' WhatsApp(s) de cobrança abertos!';
+  if(semTel.length) aviso+='\nSem WhatsApp cadastrado: '+semTel.join(', ');
+  toast(aviso);
+}
+
+function cobrarSelecionados(){
+  const ids=[...document.querySelectorAll('.chk-rec:checked')].map(c=>parseInt(c.dataset.id));
+  if(!ids.length){ toast('Selecione pelo menos um recibo.','e'); return; }
+  let enviados=0, semTel=[];
+  ids.forEach(id=>{
+    const r=RECIBOS.find(x=>x.id===id);
+    if(!r) return;
+    const s=statusRec(r);
+    if(s==='pago') return;
+    const tel=(r.clienteTel||'').replace(/\D/g,'');
+    if(!tel){ semTel.push(r.cliente); return; }
+    const vencTxt=r.venc?'com vencimento em *'+fmt(r.venc)+'*':'em aberto';
+    const parc=r.parcelas?' ('+r.parcelas+'x de '+fmtVal(r.valorParcela)+')':'';
+    const atrasado=s==='vencido';
+    const msg='Olá, *'+r.cliente+'*!\n\n'+(atrasado?
+      '⚠️ Identificamos que o pagamento referente a:\n\n*'+r.servico+'*\nno valor de *'+fmtVal(r.valor)+parc+'* está *EM ATRASO* ('+vencTxt+').\n\nPedimos que regularize o quanto antes para evitar transtornos.':
+      '🔔 Lembramos que o pagamento referente a:\n\n*'+r.servico+'*\nno valor de *'+fmtVal(r.valor)+parc+'* está '+vencTxt+'.')+
+      '\n\n💳 *Chave PIX:* 74999985392 (Carlos Wellington)\n\nAtenciosamente,\nCarlos Wellington\n📞 74 99998-5392';
+    window.open('https://wa.me/55'+tel+'?text='+encodeURIComponent(msg),'_blank');
+    enviados++;
+  });
+  let msg=enviados+' mensagem(ns) de cobrança enviada(s)!';
+  if(semTel.length) msg+=' | Sem WhatsApp: '+semTel.join(', ');
+  toast(msg);
+}
+
+function imprimirSelecionados(){
+  const ids=[...document.querySelectorAll('.chk-rec:checked')].map(c=>parseInt(c.dataset.id));
+  if(!ids.length){ toast('Selecione pelo menos um recibo.','e'); return; }
+  const area=document.getElementById('print-area');
+  area.innerHTML='';
+  ids.forEach((id,i)=>{
+    const r=RECIBOS.find(x=>x.id===id);
+    if(!r) return;
+    const s=statusRec(r);
+    const statusBadge=s==='pago'?'<span style="background:#E8F0EB;color:#1A472A;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;">✅ PAGO</span>':s==='vencido'?'<span style="background:#FDEAEA;color:#8B1A1A;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;">🔴 VENCIDO</span>':'<span style="background:#FEF3E2;color:#7A4A00;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;">🟡 EM ABERTO</span>';
+    const num='#'+String(r.id).padStart(4,'0');
+    const parcelasHtml=r.parcelas?'<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #F0EEE9;font-size:12px;"><span style="color:#6B6860;">Parcelamento</span><span style="font-weight:500;">'+r.parcelas+'x de '+fmtVal(r.valorParcela)+'</span></div>':'';
+    const pixHtml=r.pgto==='PIX'||r.pgto==='Parcelado'?'<div style="background:#E8F0EB;border-radius:6px;padding:8px 12px;margin:8px 0;font-size:12px;color:#1A472A;"><strong>💳 Chave PIX:</strong> 74999985392 (Carlos Wellington)</div>':'';
+    // Criar div do recibo
+    const div=document.createElement('div');
+    div.style.cssText='width:100%;padding:12px;font-family:DM Sans,sans-serif;box-sizing:border-box;'+(i%2===1?'border-top:1px dashed #ccc;margin-top:8px;padding-top:12px;':'');
+    div.innerHTML=
+      '<div style="text-align:center;border-bottom:2px solid #1A472A;padding-bottom:8px;margin-bottom:10px;">'+
+        '<h2 style="color:#1A472A;font-size:16px;margin:0;">🔐 BRC Serviços</h2>'+
+        '<p style="font-size:11px;color:#6B6860;margin:2px 0;">Prestação de Serviços · 📞 74 99998-5392</p>'+
+      '</div>'+
+      '<div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:11px;">'+
+        '<span style="color:#6B6860;">Recibo '+num+' · Emitido: '+fmt(r.data)+'</span>'+
+        statusBadge+
+      '</div>'+
+      '<div style="margin-bottom:8px;">'+
+        '<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #F0EEE9;font-size:12px;"><span style="color:#6B6860;">Cliente</span><span style="font-weight:500;">'+r.cliente+'</span></div>'+
+        (r.clienteDoc?'<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #F0EEE9;font-size:12px;"><span style="color:#6B6860;">CPF/CNPJ</span><span style="font-weight:500;">'+r.clienteDoc+'</span></div>':'')+
+        '<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #F0EEE9;font-size:12px;"><span style="color:#6B6860;">Serviço</span><span style="font-weight:500;">'+r.servico+'</span></div>'+
+        '<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #F0EEE9;font-size:12px;"><span style="color:#6B6860;">Pagamento</span><span style="font-weight:500;">'+r.pgto+'</span></div>'+
+        parcelasHtml+
+        (r.venc?'<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #F0EEE9;font-size:12px;"><span style="color:#6B6860;">Vencimento</span><span style="font-weight:500;">'+fmt(r.venc)+'</span></div>':'')+
+      '</div>'+
+      pixHtml+
+      '<div style="background:#E8F0EB;border-radius:6px;padding:8px;text-align:center;margin-bottom:8px;">'+
+        '<div style="font-size:10px;color:#1A472A;text-transform:uppercase;letter-spacing:0.05em;">Valor Total</div>'+
+        '<div style="font-size:20px;font-weight:700;color:#1A472A;">'+fmtVal(r.valor)+'</div>'+
+        '<div style="font-size:10px;color:#6B6860;">'+numExtenso(r.valor)+'</div>'+
+      '</div>'+
+      '<div style="display:flex;justify-content:flex-end;">'+
+        '<div style="text-align:center;">'+
+          '<div style="width:160px;border-top:1px solid #1A1916;margin:0 auto 3px;"></div>'+
+          '<p style="font-size:11px;color:#6B6860;margin:0;">Carlos Wellington · BRC Serviços</p>'+
+        '</div>'+
+      '</div>';
+    area.appendChild(div);
+    // Quebra de página a cada 2 recibos
+    if(i%2===1&&i<ids.length-1){
+      const pb=document.createElement('div');
+      pb.style.cssText='page-break-after:always;';
+      area.appendChild(pb);
+    }
+  });
+  area.style.display='block';
+  setTimeout(()=>{ window.print(); setTimeout(()=>{ area.style.display='none'; area.innerHTML=''; },600); },300);
+}
+
+function toggleParcelas(){
+  const pgto=document.getElementById('r-pgto').value;
+  document.getElementById('bloco-parcelas').style.display=pgto==='Parcelado'?'block':'none';
+  calcParcelas();
+}
+
+function calcParcelas(){
+  const n=parseInt(document.getElementById('r-parcelas').value||'2');
+  const val=parseFloat(document.getElementById('r-valor').value||'0');
+  const venc=document.getElementById('r-venc').value;
+  if(!val||!venc){ document.getElementById('parcelas-preview').textContent=''; return; }
+  const vp=(val/n).toFixed(2);
+  let txt=n+'x de '+fmtVal(vp)+' — Vencimentos: ';
+  const datas=[];
+  for(let i=0;i<n;i++){
+    const d=new Date(venc+'T00:00:00');
+    d.setMonth(d.getMonth()+i);
+    datas.push(fmt(d.toISOString().slice(0,10)));
+  }
+  txt+=datas.join(', ');
+  document.getElementById('parcelas-preview').textContent=txt;
+}
+
+function abrirNovoRecibo(){
+  atualizarSelectClientes();
+  document.getElementById('r-cliente').value='';
+  document.getElementById('r-servico').value='';
+  document.getElementById('r-valor').value='';
+  document.getElementById('r-data').value=new Date().toISOString().slice(0,10);
+  document.getElementById('r-venc').value='';
+  document.getElementById('r-pgto').value='PIX';
+  document.getElementById('r-status').value='aberto';
+  document.getElementById('bloco-parcelas').style.display='none';
+  document.getElementById('parcelas-preview').textContent='';
+  document.getElementById('r-replicar').value='1';
+  document.getElementById('replica-preview').style.display='none';
+  document.getElementById('m-recibo').classList.add('open');
+}
+
+function previewReplica(){
+  const n=parseInt(document.getElementById('r-replicar').value||'1');
+  const venc=document.getElementById('r-venc').value;
+  const prev=document.getElementById('replica-preview');
+  if(n<=1||!venc){ prev.style.display='none'; return; }
+  const datas=[];
+  for(let i=0;i<n;i++){
+    const d=new Date(venc+'T00:00:00');
+    d.setMonth(d.getMonth()+i);
+    datas.push(fmt(d.toISOString().slice(0,10)));
+  }
+  prev.style.display='block';
+  prev.textContent='Serão gerados '+n+' recibos com vencimentos: '+datas.join(', ');
+}
+
+function salvarRecibo(){
+  const cliId=parseInt(document.getElementById('r-cliente').value);
+  const servico=document.getElementById('r-servico').value.trim();
+  const valor=parseFloat(document.getElementById('r-valor').value);
+  const data=document.getElementById('r-data').value;
+  const venc=document.getElementById('r-venc').value;
+  const pgto=document.getElementById('r-pgto').value;
+  const nReplicas=parseInt(document.getElementById('r-replicar').value||'1');
+  if(!cliId||!servico||!valor||!data){ toast('Preencha todos os campos obrigatórios.','e'); return; }
+  const cli=CLIENTES.find(c=>c.id===cliId);
+  const isParcl=pgto==='Parcelado';
+  const nParcl=isParcl?parseInt(document.getElementById('r-parcelas').value):1;
+  const valParcl=isParcl?parseFloat((valor/nParcl).toFixed(2)):valor;
+  const status=document.getElementById('r-status').value;
+  let ultimoId=null;
+  for(let i=0;i<nReplicas;i++){
+    let vencI=venc;
+    if(venc&&i>0){
+      const d=new Date(venc+'T00:00:00');
+      d.setMonth(d.getMonth()+i);
+      vencI=d.toISOString().slice(0,10);
+    }
+    const sufixo=nReplicas>1?' ('+(i+1)+'/'+nReplicas+')':'';
+    const rec={id:RID++,cliente:cli.nome,clienteDoc:cli.doc||'',clienteEnd:cli.end||'',clienteTel:cli.tel||'',servico:servico+sufixo,valor,data,venc:vencI,pgto,status,parcelas:isParcl?nParcl:null,valorParcela:isParcl?valParcl:null};
+    RECIBOS.push(rec);
+    ultimoId=rec.id;
+  }
+  save('brc_recibos',RECIBOS); localStorage.setItem('brc_rid',String(RID));
+  fechar('m-recibo'); renderRecibos();
+  if(nReplicas>1){
+    toast(nReplicas+' recibos gerados com sucesso! 🎉');
+  } else {
+    toast('Recibo gerado!');
+    setTimeout(()=>verRecibo(ultimoId),300);
+  }
+}
+
+function verRecibo(id){
+  const r=RECIBOS.find(x=>x.id===id);
+  if(!r) return;
+  const num='#'+String(r.id).padStart(4,'0');
+  const s=statusRec(r);
+  const statusBadge=s==='pago'?'<span style="background:#E8F0EB;color:#1A472A;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;">✅ PAGO</span>':s==='vencido'?'<span style="background:#FDEAEA;color:#8B1A1A;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;">🔴 VENCIDO</span>':'<span style="background:#FEF3E2;color:#7A4A00;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;">🟡 EM ABERTO</span>';
+  const parcelasHtml=r.parcelas?`<div class="recibo-row"><span class="rl">Parcelamento</span><span class="rv">${r.parcelas}x de ${fmtVal(r.valorParcela)}</span></div>`:'';
+  const pixHtml=r.pgto==='PIX'||r.pgto==='Parcelado'?`<div style="background:#E8F0EB;border-radius:8px;padding:10px 14px;margin:10px 0;font-size:13px;color:#1A472A;"><strong>💳 Chave PIX:</strong> 74999985392 (Carlos Wellington)</div>`:'';
+  document.getElementById('recibo-conteudo').innerHTML=`
+    <div class="recibo-preview">
+      <div class="recibo-header">
+        <h2>🔐 BRC Serviços</h2>
+        <p>Prestação de Serviços</p>
+        <p style="font-size:12px;margin-top:4px">📞 74 99998-5392</p>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+        <div class="recibo-numero" style="margin:0">Recibo ${num} &nbsp;|&nbsp; Emitido em: ${fmt(r.data)}</div>
+        <div>${statusBadge}</div>
+      </div>
+      <div class="recibo-body">
+        <div class="recibo-row"><span class="rl">Cliente</span><span class="rv">${r.cliente}</span></div>
+        ${r.clienteDoc?'<div class="recibo-row"><span class="rl">CPF/CNPJ</span><span class="rv">'+r.clienteDoc+'</span></div>':''}
+        ${r.clienteEnd?'<div class="recibo-row"><span class="rl">Endereço</span><span class="rv">'+r.clienteEnd+'</span></div>':''}
+        <div class="recibo-row"><span class="rl">Serviço</span><span class="rv">${r.servico}</span></div>
+        <div class="recibo-row"><span class="rl">Forma de pagamento</span><span class="rv">${r.pgto}</span></div>
+        ${parcelasHtml}
+        ${r.venc?'<div class="recibo-row"><span class="rl">Vencimento</span><span class="rv">'+fmt(r.venc)+'</span></div>':''}
+      </div>
+      ${pixHtml}
+      <div class="recibo-valor">
+        <div class="vl">Valor total</div>
+        <div class="vv">${fmtVal(r.valor)}</div>
+        <div class="ve">${numExtenso(r.valor)}</div>
+      </div>
+      <div class="recibo-footer">
+        <div style="font-size:12px;color:#6B6860;">BRC Serviços — 📞 74 99998-5392</div>
+        <div class="assinatura">
+          <div class="linha"></div>
+          <p>Carlos Wellington</p>
+          <p>BRC Serviços</p>
+        </div>
+      </div>
+    </div>`;
+  document.getElementById('m-ver-recibo').classList.add('open');
+}
+
+// =====================================================
+// EDITAR CLIENTE
+// =====================================================
+function editarCliente(id){
+  const c=CLIENTES.find(x=>x.id===id); if(!c) return;
+  document.getElementById('ec-id').value=id;
+  document.getElementById('ec-nome').value=c.nome||'';
+  document.getElementById('ec-doc').value=c.doc||'';
+  document.getElementById('ec-tel').value=c.tel||'';
+  document.getElementById('ec-email').value=c.email||'';
+  document.getElementById('ec-end').value=c.end||'';
+  document.getElementById('ec-obs').value=c.obs||'';
+  document.getElementById('m-editar-cliente').classList.add('open');
+}
+
+function salvarEdicaoCliente(){
+  const id=parseInt(document.getElementById('ec-id').value);
+  const nome=document.getElementById('ec-nome').value.trim();
+  if(!nome){ toast('Preencha o nome.','e'); return; }
+  const c=CLIENTES.find(x=>x.id===id); if(!c) return;
+  c.nome=nome;
+  c.doc=document.getElementById('ec-doc').value;
+  c.tel=document.getElementById('ec-tel').value;
+  c.email=document.getElementById('ec-email').value;
+  c.end=document.getElementById('ec-end').value;
+  c.obs=document.getElementById('ec-obs').value;
+  save('brc_clientes2',CLIENTES);
+  fechar('m-editar-cliente'); renderClientes(); atualizarSelectClientes();
+  toast('Cliente atualizado! ✅');
+}
+
+// =====================================================
+// EDITAR RECIBO
+// =====================================================
+function editarRecibo(id){
+  const r=RECIBOS.find(x=>x.id===id); if(!r) return;
+  document.getElementById('er-id').value=id;
+  document.getElementById('er-servico').value=r.servico||'';
+  document.getElementById('er-valor').value=r.valor||'';
+  document.getElementById('er-data').value=r.data||'';
+  document.getElementById('er-pgto').value=r.pgto||'PIX';
+  document.getElementById('er-venc').value=r.venc||'';
+  document.getElementById('er-status').value=r.status||'aberto';
+  document.getElementById('m-editar-recibo').classList.add('open');
+}
+
+function salvarEdicaoRecibo(){
+  const id=parseInt(document.getElementById('er-id').value);
+  const servico=document.getElementById('er-servico').value.trim();
+  const valor=parseFloat(document.getElementById('er-valor').value);
+  if(!servico||!valor){ toast('Preencha serviço e valor.','e'); return; }
+  const r=RECIBOS.find(x=>x.id===id); if(!r) return;
+  r.servico=servico;
+  r.valor=valor;
+  r.data=document.getElementById('er-data').value;
+  r.pgto=document.getElementById('er-pgto').value;
+  r.venc=document.getElementById('er-venc').value;
+  r.status=document.getElementById('er-status').value;
+  save('brc_recibos',RECIBOS);
+  fechar('m-editar-recibo'); renderRecibos();
+  toast('Recibo atualizado! ✅');
+}
+
+function relatorioClientesDevendo(){
+  const vencidos=RECIBOS.filter(r=>statusRec(r)==='vencido');
+  if(!vencidos.length){ toast('Nenhum cliente com atraso.','e'); return; }
+  const porCliente={};
+  vencidos.forEach(r=>{
+    if(!porCliente[r.cliente]) porCliente[r.cliente]={nome:r.cliente,tel:r.clienteTel||'',total:0,qtd:0,recibos:[]};
+    porCliente[r.cliente].total+=parseFloat(r.valor||0);
+    porCliente[r.cliente].qtd++;
+    porCliente[r.cliente].recibos.push(r);
+  });
+  const lst=Object.values(porCliente).sort((a,b)=>b.total-a.total);
+  const totalGeral=lst.reduce((s,c)=>s+c.total,0);
+  const linhas=lst.map((c,i)=>{
+    const recLista=c.recibos.map(r=>'<div style="font-size:11px;color:#6B6860;padding:2px 0;">• '+r.servico.substring(0,35)+' — '+fmtVal(r.valor)+(r.venc?' (venc: '+fmt(r.venc)+')':'')+'</div>').join('');
+    return '<tr style="background:'+(i%2===0?'#FAFAF8':'#fff')+';">'+
+      '<td style="padding:8px 10px;font-size:12px;border-bottom:1px solid #F0EEE9;font-weight:500;">'+c.nome+'</td>'+
+      '<td style="padding:8px 10px;font-size:12px;border-bottom:1px solid #F0EEE9;">'+(c.tel||'—')+'</td>'+
+      '<td style="padding:8px 10px;font-size:12px;border-bottom:1px solid #F0EEE9;text-align:center;">'+c.qtd+'</td>'+
+      '<td style="padding:8px 10px;font-size:12px;border-bottom:1px solid #F0EEE9;font-weight:700;color:#8B1A1A;text-align:right;">'+fmtVal(c.total)+'</td>'+
+      '<td style="padding:8px 10px;font-size:11px;border-bottom:1px solid #F0EEE9;">'+recLista+'</td>'+
+    '</tr>';
+  }).join('');
+  const area=document.getElementById('print-area');
+  const htmlDev =
+    gerarCabecalhoRelatorio('Clientes em Atraso','Total: '+lst.length+' cliente(s) · Valor total em atraso: '+fmtVal(totalGeral))+
+    '<table style="width:100%;border-collapse:collapse;margin-top:8px;">'+
+      '<thead><tr style="background:#8B1A1A;color:#fff;">'+
+        '<th style="padding:8px 10px;text-align:left;font-size:11px;">Cliente</th>'+
+        '<th style="padding:8px 10px;text-align:left;font-size:11px;">Telefone</th>'+
+        '<th style="padding:8px 10px;text-align:center;font-size:11px;">Qtd</th>'+
+        '<th style="padding:8px 10px;text-align:right;font-size:11px;">Total em atraso</th>'+
+        '<th style="padding:8px 10px;text-align:left;font-size:11px;">Recibos</th>'+
+      '</tr></thead>'+
+      '<tbody>'+linhas+'</tbody>'+
+      '<tfoot><tr style="background:#FDEAEA;">'+
+        '<td colspan="3" style="padding:8px 10px;font-size:12px;font-weight:600;">Total geral em atraso</td>'+
+        '<td style="padding:8px 10px;font-size:13px;font-weight:700;color:#8B1A1A;text-align:right;">'+fmtVal(totalGeral)+'</td>'+
+        '<td></td>'+
+      '</tr></tfoot>'+
+    '</table>'+
+    '<p style="font-size:11px;color:#9C9A94;margin-top:16px;text-align:center;">BRC Serviços — Relatório gerado automaticamente</p>';
+  showRelatorio('Clientes em Atraso', htmlDev);
+}
+
+function relatorioResumoFinanceiro(){
+  const mes=document.getElementById('filtro-mes').value;
+  let lst=mes==='todos'?RECIBOS:RECIBOS.filter(r=>r.data&&r.data.startsWith(mes));
+  const pagos=lst.filter(r=>statusRec(r)==='pago');
+  const abertos=lst.filter(r=>statusRec(r)==='aberto');
+  const vencidos=lst.filter(r=>statusRec(r)==='vencido');
+  const totalPago=pagos.reduce((s,r)=>s+parseFloat(r.valor||0),0);
+  const totalAberto=abertos.reduce((s,r)=>s+parseFloat(r.valor||0),0);
+  const totalVencido=vencidos.reduce((s,r)=>s+parseFloat(r.valor||0),0);
+  const totalGeral=lst.reduce((s,r)=>s+parseFloat(r.valor||0),0);
+  const mesTxt=mes==='todos'?'Todos os meses':mes;
+  const area=document.getElementById('print-area');
+  const htmlFin =
+    gerarCabecalhoRelatorio('Resumo Financeiro','Período: '+mesTxt+' · Total de recibos: '+lst.length)+
+    '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px;">'+
+      '<div style="background:#E8F0EB;border-radius:8px;padding:14px;"><div style="font-size:11px;color:#1A472A;margin-bottom:4px;">✅ RECEBIDO</div><div style="font-size:24px;font-weight:700;color:#1A472A;">'+fmtVal(totalPago)+'</div><div style="font-size:11px;color:#6B6860;">'+pagos.length+' recibo(s)</div></div>'+
+      '<div style="background:#FEF3E2;border-radius:8px;padding:14px;"><div style="font-size:11px;color:#7A4A00;margin-bottom:4px;">🟡 A VENCER</div><div style="font-size:24px;font-weight:700;color:#7A4A00;">'+fmtVal(totalAberto)+'</div><div style="font-size:11px;color:#6B6860;">'+abertos.length+' recibo(s)</div></div>'+
+      '<div style="background:#FDEAEA;border-radius:8px;padding:14px;"><div style="font-size:11px;color:#8B1A1A;margin-bottom:4px;">🔴 EM ATRASO</div><div style="font-size:24px;font-weight:700;color:#8B1A1A;">'+fmtVal(totalVencido)+'</div><div style="font-size:11px;color:#6B6860;">'+vencidos.length+' recibo(s)</div></div>'+
+      '<div style="background:#F0EEE9;border-radius:8px;padding:14px;"><div style="font-size:11px;color:#1A1916;margin-bottom:4px;">📋 TOTAL GERAL</div><div style="font-size:24px;font-weight:700;color:#1A1916;">'+fmtVal(totalGeral)+'</div><div style="font-size:11px;color:#6B6860;">'+lst.length+' recibo(s)</div></div>'+
+    '</div>'+
+    '<p style="font-size:11px;color:#9C9A94;text-align:center;">BRC Serviços — Resumo financeiro gerado automaticamente</p>';
+  showRelatorio('Resumo Financeiro', htmlFin);
+}
+
+function showRelatorio(titulo, htmlConteudo){
+  document.getElementById('rel-modal-titulo').textContent = titulo;
+  document.getElementById('rel-modal-conteudo').innerHTML = htmlConteudo;
+  document.getElementById('m-relatorio').classList.add('open');
+  // Guardar conteúdo para imprimir
+  window._relatorioAtual = htmlConteudo;
+}
+
+function imprimirRelatorioModal(){
+  const area = document.getElementById('print-area');
+  area.innerHTML = '<div style="font-family:DM Sans,sans-serif;padding:16px;">'+window._relatorioAtual+'</div>';
+  area.style.display = 'block';
+  setTimeout(()=>{ window.print(); setTimeout(()=>{ area.style.display='none'; area.innerHTML=''; },600); },300);
+}
+
+function gerarCabecalhoRelatorio(titulo, subtitulo){
+  return '<div style="font-family:DM Sans,sans-serif;padding:0 0 16px 0;border-bottom:3px solid #1A472A;margin-bottom:20px;display:flex;justify-content:space-between;align-items:flex-end;">'+
+    '<div>'+
+      '<h1 style="color:#1A472A;font-size:22px;margin:0 0 4px;">🔐 BRC Serviços</h1>'+
+      '<h2 style="font-size:15px;font-weight:500;color:#1A1916;margin:0;">'+titulo+'</h2>'+
+      (subtitulo?'<p style="font-size:12px;color:#6B6860;margin:4px 0 0;">'+subtitulo+'</p>':'')+
+    '</div>'+
+    '<div style="text-align:right;font-size:11px;color:#9C9A94;">'+
+      '<p style="margin:0;">Emitido em: '+new Date().toLocaleDateString("pt-BR",{day:"2-digit",month:"long",year:"numeric"})+'</p>'+
+      '<p style="margin:4px 0 0;">📞 74 99998-5392</p>'+
+    '</div>'+
+  '</div>';
+}
+
+function relatorioClientes(){
+  const q=document.getElementById('busca-cli').value.toLowerCase();
+  let lst=CLIENTES.filter(c=>!q||c.nome.toLowerCase().includes(q)||(c.doc||'').includes(q));
+  lst.sort((a,b)=>a.nome.localeCompare(b.nome));
+  if(!lst.length){ toast('Nenhum cliente para imprimir.','e'); return; }
+  const area=document.getElementById('print-area');
+  const linhas=lst.map((c,i)=>
+    '<tr style="background:'+(i%2===0?'#FAFAF8':'#fff')+';">'+
+      '<td style="padding:8px 10px;font-size:12px;border-bottom:1px solid #F0EEE9;">'+c.nome+'</td>'+
+      '<td style="padding:8px 10px;font-size:12px;border-bottom:1px solid #F0EEE9;">'+(c.doc||'—')+'</td>'+
+      '<td style="padding:8px 10px;font-size:12px;border-bottom:1px solid #F0EEE9;">'+(c.tel||'—')+'</td>'+
+      '<td style="padding:8px 10px;font-size:12px;border-bottom:1px solid #F0EEE9;">'+(c.email||'—')+'</td>'+
+      '<td style="padding:8px 10px;font-size:12px;border-bottom:1px solid #F0EEE9;">'+(c.end||'—')+'</td>'+
+    '</tr>'
+  ).join('');
+  const htmlCli =
+    gerarCabecalhoRelatorio('Relatório de Clientes','Total: '+lst.length+' cliente(s) cadastrado(s)')+
+    '<table style="width:100%;border-collapse:collapse;margin-top:8px;">'+
+      '<thead><tr style="background:#1A472A;color:#fff;">'+
+        '<th style="padding:8px 10px;text-align:left;font-size:11px;font-weight:500;">Nome</th>'+
+        '<th style="padding:8px 10px;text-align:left;font-size:11px;font-weight:500;">CPF/CNPJ</th>'+
+        '<th style="padding:8px 10px;text-align:left;font-size:11px;font-weight:500;">Telefone</th>'+
+        '<th style="padding:8px 10px;text-align:left;font-size:11px;font-weight:500;">E-mail</th>'+
+        '<th style="padding:8px 10px;text-align:left;font-size:11px;font-weight:500;">Endereço</th>'+
+      '</tr></thead>'+
+      '<tbody>'+linhas+'</tbody>'+
+    '</table>'+
+    '<p style="font-size:11px;color:#9C9A94;margin-top:16px;text-align:center;">BRC Serviços — Relatório gerado automaticamente pelo sistema</p>';
+  showRelatorio('Relatório de Clientes', htmlCli);
+}
+
+function relatorioRecibos(tipo){
+  const titulos={
+    vencido:'Relatório de Recibos Vencidos',
+    aberto:'Relatório de Recibos a Vencer',
+    receber:'Relatório de Recibos a Receber',
+    atrasado:'Relatório de Recibos Atrasados',
+    pago:'Relatório de Recibos Pagos',
+    todos:'Relatório Geral de Recibos'
+  };
+  const titulo=titulos[tipo]||'Relatório de Recibos';
+  const cores={vencido:'#8B1A1A',aberto:'#7A4A00',receber:'#0C447C',atrasado:'#6B0000',pago:'#1A472A',todos:'#1A1916'};
+  const corHeader=cores[tipo]||'#1A472A';
+  const mes=document.getElementById('filtro-mes').value;
+  let lst=RECIBOS.filter(r=>{
+    const s=statusRec(r);
+    if(tipo==='vencido') return s==='vencido';
+    if(tipo==='aberto') return s==='aberto';
+    if(tipo==='receber') return s==='aberto'||s==='vencido';
+    if(tipo==='atrasado') return s==='vencido';
+    if(tipo==='pago') return s==='pago';
+    return true;
+  });
+  if(mes!=='todos') lst=lst.filter(r=>r.data&&r.data.startsWith(mes));
+  lst.sort((a,b)=>{
+    if(!a.venc) return 1; if(!b.venc) return -1;
+    return new Date(a.venc)-new Date(b.venc);
+  });
+  if(!lst.length){ toast('Nenhum recibo encontrado.','e'); return; }
+  const totalVal=lst.reduce((s,r)=>s+parseFloat(r.valor||0),0);
+  const SP={pago:'✅ Pago',vencido:'🔴 Vencido',aberto:'🟡 Em aberto'};
+  const corStatus={pago:'#1A472A',vencido:'#8B1A1A',aberto:'#7A4A00'};
+  const linhas=lst.map((r,i)=>{
+    const s=statusRec(r);
+    return '<tr style="background:'+(i%2===0?'#FAFAF8':'#fff')+';">'+
+      '<td style="padding:8px 10px;font-size:12px;border-bottom:1px solid #F0EEE9;">#'+String(r.id).padStart(4,'0')+'</td>'+
+      '<td style="padding:8px 10px;font-size:12px;border-bottom:1px solid #F0EEE9;">'+r.cliente+'</td>'+
+      '<td style="padding:8px 10px;font-size:12px;border-bottom:1px solid #F0EEE9;">'+r.servico.substring(0,40)+'</td>'+
+      '<td style="padding:8px 10px;font-size:12px;border-bottom:1px solid #F0EEE9;text-align:right;font-weight:600;">'+fmtVal(r.valor)+'</td>'+
+      '<td style="padding:8px 10px;font-size:12px;border-bottom:1px solid #F0EEE9;">'+(r.venc?fmt(r.venc):'—')+'</td>'+
+      '<td style="padding:8px 10px;font-size:12px;border-bottom:1px solid #F0EEE9;font-weight:600;color:'+corStatus[s]+';">'+SP[s]+'</td>'+
+      '<td style="padding:8px 10px;font-size:12px;border-bottom:1px solid #F0EEE9;">'+(r.clienteTel||'—')+'</td>'+
+    '</tr>';
+  }).join('');
+  const htmlRec =
+    gerarCabecalhoRelatorio(titulo,'Total: '+lst.length+' recibo(s) · Valor total: '+fmtVal(totalVal))+
+    '<table style="width:100%;border-collapse:collapse;margin-top:8px;">'+
+      '<thead><tr style="background:'+corHeader+';color:#fff;">'+
+        '<th style="padding:8px 10px;text-align:left;font-size:11px;font-weight:500;">Nº</th>'+
+        '<th style="padding:8px 10px;text-align:left;font-size:11px;font-weight:500;">Cliente</th>'+
+        '<th style="padding:8px 10px;text-align:left;font-size:11px;font-weight:500;">Serviço</th>'+
+        '<th style="padding:8px 10px;text-align:right;font-size:11px;font-weight:500;">Valor</th>'+
+        '<th style="padding:8px 10px;text-align:left;font-size:11px;font-weight:500;">Vencimento</th>'+
+        '<th style="padding:8px 10px;text-align:left;font-size:11px;font-weight:500;">Status</th>'+
+        '<th style="padding:8px 10px;text-align:left;font-size:11px;font-weight:500;">Telefone</th>'+
+      '</tr></thead>'+
+      '<tbody>'+linhas+'</tbody>'+
+      '<tfoot><tr style="background:#F0EEE9;">'+
+        '<td colspan="3" style="padding:8px 10px;font-size:12px;font-weight:600;">Total</td>'+
+        '<td style="padding:8px 10px;font-size:13px;font-weight:700;text-align:right;color:#1A472A;">'+fmtVal(totalVal)+'</td>'+
+        '<td colspan="3"></td>'+
+      '</tr></tfoot>'+
+    '</table>'+
+    '<p style="font-size:11px;color:#9C9A94;margin-top:16px;text-align:center;">BRC Serviços — Relatório gerado automaticamente pelo sistema</p>';
+  showRelatorio(titulo, htmlRec);
+}
+
+function imprimirRecibo(){
+  const conteudo = document.getElementById('recibo-conteudo').innerHTML;
+  const area = document.getElementById('print-area');
+  area.innerHTML = conteudo;
+  area.style.display = 'block';
+  setTimeout(()=>{
+    window.print();
+    setTimeout(()=>{ area.style.display='none'; area.innerHTML=''; }, 500);
+  }, 300);
+}
+
+function removerRecibo(id){ if(!confirm('Remover este recibo?')) return; RECIBOS=RECIBOS.filter(r=>r.id!==id); save('brc_recibos',RECIBOS); renderRecibos(); toast('Removido.'); }
+
+function marcarPago(id){
+  const r=RECIBOS.find(x=>x.id===id); if(!r) return;
+  r.status='pago'; save('brc_recibos',RECIBOS); renderRecibos(); toast('Marcado como pago! ✅');
+}
+
+function marcarAberto(id){
+  const r=RECIBOS.find(x=>x.id===id); if(!r) return;
+  r.status='aberto'; save('brc_recibos',RECIBOS); renderRecibos(); toast('Marcado como em aberto.');
+}
+
+function cobrarWpp(id){
+  const r=RECIBOS.find(x=>x.id===id); if(!r) return;
+  const tel=(r.clienteTel||'').replace(/\D/g,'');
+  const s=statusRec(r);
+  const vencTxt=r.venc?'que venceu em *'+fmt(r.venc)+'*':'em aberto';
+  const parc=r.parcelas?' ('+r.parcelas+'x de '+fmtVal(r.valorParcela)+')':'';
+  const msg='Olá, *'+r.cliente+'*!\n\n'+(s==='vencido'?'⚠️ Identificamos que o pagamento referente a:\n\n*'+r.servico+'*\nno valor de *'+fmtVal(r.valor)+parc+'* está *em atraso* ('+vencTxt+').\n\nPedimos que regularize o quanto antes para evitar transtornos.':'🔔 Lembramos que o pagamento referente a:\n\n*'+r.servico+'*\nno valor de *'+fmtVal(r.valor)+parc+'* está '+vencTxt+'.')+'\n\n💳 *Chave PIX:* 74999985392\n\nAtenciosamente,\nCarlos Wellington\n📞 74 99998-5392';
+  if(!tel){ navigator.clipboard.writeText(msg).then(()=>toast('Mensagem copiada! Cole no WhatsApp.')).catch(()=>toast('Copie a mensagem manualmente.','e')); return; }
+  window.open('https://wa.me/55'+tel+'?text='+encodeURIComponent(msg),'_blank');
+  toast('WhatsApp de cobrança aberto!');
+}
+
+// =====================================================
+// NOTIFICAÇÕES
+// =====================================================
+function notif(){
+  const h0=CERTS.filter(c=>dias(c.venc)===0);
+  const vv=CERTS.filter(c=>dias(c.venc)<0);
+  const ms=[];
+  if(h0.length) ms.push('⚠️ '+h0.length+' certificado(s) vencem HOJE!');
+  if(vv.length) ms.push('🚨 '+vv.length+' certificado(s) VENCIDOS!');
+  if(ms.length){ document.getElementById('notif-txt').textContent=ms.join(' | '); document.getElementById('notif').classList.add('show'); }
+}
+
+// =====================================================
+// MODAL
+// =====================================================
+function fechar(id){ document.getElementById(id).classList.remove('open'); }
+document.addEventListener('click',e=>{ if(e.target.classList.contains('overlay')) e.target.classList.remove('open'); });
+
+// =====================================================
+// TOAST
+// =====================================================
+function toast(m,t){ const el=document.getElementById('toast'); el.textContent=m; el.className='toast show '+(t==='e'?'te':'ts'); setTimeout(()=>el.className='toast',3500); }
+
+// =====================================================
+// AGENDA
+// =====================================================
+let AGENDA = JSON.parse(localStorage.getItem('brc_agenda')||'[]');
+let AID = parseInt(localStorage.getItem('brc_aid')||'1');
+let agendaFiltro = 'todos';
+let calAtual = new Date();
+let agendaCheckInterval = null;
+
+const CAT_ICON = {certificado:'🔐',reuniao:'👥',financeiro:'💰',cliente:'🤝',outro:'📌'};
+const CAT_NOME = {certificado:'Certificado',reuniao:'Reuniao',financeiro:'Financeiro',cliente:'Cliente',outro:'Outro'};
+
+function salvarAgenda(){
+  const titulo = document.getElementById('ag-titulo').value.trim();
+  const data = document.getElementById('ag-data').value;
+  if(!titulo||!data){ toast('Preencha o título e a data.','e'); return; }
+  AGENDA.push({
+    id:AID++, titulo, data,
+    hora: document.getElementById('ag-hora').value||'',
+    cat: document.getElementById('ag-cat').value,
+    obs: document.getElementById('ag-obs').value,
+    lembrete: parseInt(document.getElementById('ag-lembrete').value||'0'),
+    concluido: false,
+    criado: new Date().toISOString()
+  });
+  localStorage.setItem('brc_agenda', JSON.stringify(AGENDA));
+  localStorage.setItem('brc_aid', String(AID));
+  document.getElementById('ag-titulo').value='';
+  document.getElementById('ag-data').value='';
+  document.getElementById('ag-hora').value='';
+  document.getElementById('ag-obs').value='';
+  renderAgenda(); renderCalendario();
+  toast('Compromisso salvo! ✅');
+}
+
+function statusAgenda(a){
+  const agora = new Date();
+  const dataEvt = new Date(a.data+'T'+(a.hora||'00:00')+':00');
+  if(a.concluido) return 'concluido';
+  if(dataEvt < agora && !isMesmaData(dataEvt, agora)) return 'urgente';
+  if(isMesmaData(dataEvt, agora)) return 'hoje';
+  return 'futuro';
+}
+
+function isMesmaData(d1,d2){
+  return d1.getFullYear()===d2.getFullYear()&&d1.getMonth()===d2.getMonth()&&d1.getDate()===d2.getDate();
+}
+
+function filtrarAgenda(f){ agendaFiltro=f; renderAgenda(); }
+
+function renderAgenda(){
+  const agora = new Date();
+  const fimSemana = new Date(agora); fimSemana.setDate(agora.getDate()+7);
+  let lst = AGENDA.filter(a=>{
+    if(agendaFiltro==='hoje') return isMesmaData(new Date(a.data+'T00:00:00'), agora);
+    if(agendaFiltro==='semana'){ const d=new Date(a.data+'T00:00:00'); return d>=agora&&d<=fimSemana; }
+    if(agendaFiltro==='atrasado') return statusAgenda(a)==='urgente';
+    if(agendaFiltro==='certificado') return a.cat==='certificado';
+    return true;
+  });
+  lst.sort((a,b)=>{
+    const sa=statusAgenda(a),sb=statusAgenda(b);
+    if(sa==='urgente'&&sb!=='urgente') return -1;
+    if(sb==='urgente'&&sa!=='urgente') return 1;
+    if(sa==='hoje'&&sb!=='hoje') return -1;
+    if(sb==='hoje'&&sa!=='hoje') return 1;
+    return new Date(a.data)-new Date(b.data);
+  });
+  const el = document.getElementById('agenda-lista');
+  if(!lst.length){ el.innerHTML='<div class="agenda-vazia">Nenhum compromisso encontrado.<br>Cadastre um novo ao lado! 😊</div>'; return; }
+  const meses=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  el.innerHTML = lst.map(a=>{
+    const s=statusAgenda(a);
+    const d=new Date(a.data+'T00:00:00');
+    const dataFmt=d.getDate()+' '+meses[d.getMonth()]+'/'+d.getFullYear()+(a.hora?' às '+a.hora:'');
+    const slabel={urgente:'🔴 Atrasado',hoje:'🟢 Hoje',futuro:'🔵 Próximo',concluido:'✅ Concluído'}[s];
+    return '<div class="agenda-item '+s+'">'+
+      '<div class="ai-icon">'+CAT_ICON[a.cat]+'</div>'+
+      '<div class="ai-corpo">'+
+        '<div class="ai-titulo">'+(a.concluido?'<s>':'')+a.titulo+(a.concluido?'</s>':'')+'</div>'+
+        '<div class="ai-data">'+dataFmt+' · '+slabel+' · '+CAT_NOME[a.cat]+'</div>'+
+        (a.obs?'<div class="ai-obs">'+a.obs+'</div>':'')+
+        '<div class="ai-acts">'+
+          (s!=='concluido'?'<button class="btn bs bsm" onclick="concluirAgenda('+a.id+')">✅ Concluído</button>':
+          '<button class="btn bo bsm" onclick="reabrirAgenda('+a.id+')">↩ Reabrir</button>')+
+          '<button class="btn bd bsm" onclick="excluirAgenda('+a.id+')">✕</button>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+function concluirAgenda(id){ const a=AGENDA.find(x=>x.id===id); if(a){ a.concluido=true; localStorage.setItem('brc_agenda',JSON.stringify(AGENDA)); renderAgenda(); renderCalendario(); toast('Marcado como concluído!'); } }
+function reabrirAgenda(id){ const a=AGENDA.find(x=>x.id===id); if(a){ a.concluido=false; localStorage.setItem('brc_agenda',JSON.stringify(AGENDA)); renderAgenda(); renderCalendario(); } }
+function excluirAgenda(id){ if(!confirm('Excluir este compromisso?')) return; AGENDA=AGENDA.filter(x=>x.id!==id); localStorage.setItem('brc_agenda',JSON.stringify(AGENDA)); renderAgenda(); renderCalendario(); toast('Excluído.'); }
+
+// CALENDÁRIO
+function renderCalendario(){
+  const ano=calAtual.getFullYear(), mes=calAtual.getMonth();
+  const nomeMes=['Janeiro','Fevereiro','Marco','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  document.getElementById('cal-titulo').textContent=nomeMes[mes]+' '+ano;
+  const primeiroDia=new Date(ano,mes,1).getDay();
+  const diasMes=new Date(ano,mes+1,0).getDate();
+  const hoje2=new Date(); hoje2.setHours(0,0,0,0);
+  const dias=['D','S','T','Q','Q','S','S'];
+  let html='';
+  for(let i=0;i<7;i++) html+='<div class="cal-dia-nome">'+dias[i]+'</div>';
+  for(let i=0;i<primeiroDia;i++) html+='<div class="cal-dia outro-mes"></div>';
+  for(let d=1;d<=diasMes;d++){
+    const dt=new Date(ano,mes,d); dt.setHours(0,0,0,0);
+    const ds=ano+'-'+String(mes+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    const temEvt=AGENDA.some(function(a){ return a.data===ds&&!a.concluido; });
+    const eh=dt.getTime()===hoje2.getTime();
+    const cls='cal-dia'+(eh?' hoje':'')+(temEvt&&!eh?' tem-evento':'');
+    html+='<div class="'+cls+'" data-ds="'+ds+'" onclick="filtrarDia(this.getAttribute('data-ds'))">'+d+'</div>';
+  }
+  document.getElementById('cal-grid').innerHTML=html;
+}
+
+function calMes(dir){ calAtual.setMonth(calAtual.getMonth()+dir); renderCalendario(); }
+
+function filtrarDia(data){
+  agendaFiltro='todos';
+  renderAgenda();
+  document.getElementById('ag-data').value=data;
+}
+
+// VERIFICAR LEMBRETES
+function verificarLembretes(){
+  const agora=new Date();
+  AGENDA.filter(a=>!a.concluido&&a.hora).forEach(a=>{
+    const dataEvt=new Date(a.data+'T'+a.hora+':00');
+    const lembMin=a.lembrete||0;
+    const dataLembrete=new Date(dataEvt.getTime()-lembMin*60000);
+    const diff=Math.abs(agora-dataLembrete);
+    if(diff<60000){
+      tocarSom();
+      mostrarNotifSom((lembMin>0?lembMin+' min para: ':'')+a.titulo);
+    }
+  });
+}
+
+function tocarSom(){
+  try {
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    [523,659,784,659,784].forEach((freq,i)=>{
+      const osc=ctx.createOscillator();
+      const gain=ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.frequency.value=freq;
+      osc.type='sine';
+      gain.gain.setValueAtTime(0.3,ctx.currentTime+i*0.15);
+      gain.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+i*0.15+0.14);
+      osc.start(ctx.currentTime+i*0.15);
+      osc.stop(ctx.currentTime+i*0.15+0.15);
+    });
+  } catch(e){}
+}
+
+function mostrarNotifSom(txt){
+  const el=document.getElementById('notif-som');
+  document.getElementById('notif-som-txt').textContent=txt;
+  el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),5000);
+}
+
+function iniciar(){
+  document.getElementById('data-hoje').textContent=hoje.toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+  render(); renderClientes(); renderRecibos(); renderMetricsRec(); notif();
+  renderAgenda(); renderCalendario();
+  if(agendaCheckInterval) clearInterval(agendaCheckInterval);
+  agendaCheckInterval = setInterval(verificarLembretes, 30000);
+  verificarLembretes();
+}
+</script>
+</body>
+</html>
