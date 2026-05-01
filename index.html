@@ -140,6 +140,37 @@ td{padding:11px 14px;vertical-align:middle;}
   @page { margin:10mm; size:A4 portrait; }
 }
 #print-area { display:none; }
+.agenda-grid{display:grid;grid-template-columns:300px 1fr;gap:16px;}
+@media(max-width:800px){.agenda-grid{grid-template-columns:1fr;}}
+.agenda-form{background:#fff;border-radius:10px;border:1px solid #E2DFD8;padding:1.25rem;}
+.agenda-form h3{font-size:14px;font-weight:600;margin-bottom:1rem;color:#1A1916;}
+.agenda-lista{display:flex;flex-direction:column;gap:8px;}
+.agenda-item{background:#fff;border-radius:10px;border:1px solid #E2DFD8;padding:1rem;display:flex;align-items:flex-start;gap:10px;transition:all 0.15s;}
+.agenda-item.urgente{border-color:#F5BFBF;background:#FDEAEA;}
+.agenda-item.hoje{border-color:#C5D9CC;background:#E8F0EB;}
+.agenda-item.futuro{border-color:#E2DFD8;}
+.agenda-item.concluido{opacity:0.5;}
+.agenda-item .ai-icon{font-size:20px;flex-shrink:0;margin-top:2px;}
+.agenda-item .ai-corpo{flex:1;}
+.agenda-item .ai-titulo{font-size:13px;font-weight:500;color:#1A1916;margin-bottom:2px;}
+.agenda-item .ai-data{font-size:11px;color:#9C9A94;}
+.agenda-item .ai-obs{font-size:12px;color:#6B6860;margin-top:4px;}
+.agenda-item .ai-acts{display:flex;gap:6px;margin-top:8px;}
+.agenda-vazia{text-align:center;padding:2rem;color:#9C9A94;font-size:13px;background:#fff;border-radius:10px;border:1px solid #E2DFD8;}
+.agenda-filtros{display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;}
+.agenda-mini-cal{background:#fff;border-radius:10px;border:1px solid #E2DFD8;padding:1rem;margin-bottom:12px;}
+.cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.cal-header span{font-size:13px;font-weight:500;}
+.cal-header button{background:none;border:none;cursor:pointer;font-size:16px;color:#6B6860;padding:2px 6px;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center;}
+.cal-dia-nome{font-size:10px;color:#9C9A94;font-weight:500;padding:2px 0;}
+.cal-dia{font-size:12px;padding:4px 2px;border-radius:4px;cursor:pointer;}
+.cal-dia:hover{background:#F0EEE9;}
+.cal-dia.hoje{background:#1A472A;color:#fff;font-weight:600;}
+.cal-dia.tem-evento{background:#E8F0EB;color:#1A472A;font-weight:600;}
+.cal-dia.outro-mes{color:#D0CEC8;}
+.notif-som{position:fixed;bottom:80px;right:24px;background:#1A472A;color:#fff;border-radius:10px;padding:12px 20px;font-size:13px;font-weight:500;z-index:999;opacity:0;transform:translateY(12px);transition:all 0.3s;pointer-events:none;max-width:320px;box-shadow:0 4px 16px rgba(0,0,0,0.2);}
+.notif-som.show{opacity:1;transform:translateY(0);}
 @media(max-width:700px){.metrics{grid-template-columns:repeat(2,1fr);} .container{padding:1rem;} .fg{grid-template-columns:1fr;} .torge-grid{grid-template-columns:repeat(2,1fr);}}
 </style>
 </head>
@@ -198,6 +229,7 @@ td{padding:11px 14px;vertical-align:middle;}
     <button class="nav-tab active" onclick="aba('certificados',this)">🔐 Certificados</button>
     <button class="nav-tab" onclick="aba('clientes',this)">👥 Clientes</button>
     <button class="nav-tab" onclick="aba('recibos',this)">🧾 Recibos</button>
+    <button class="nav-tab" onclick="aba('agenda',this)">📅 Agenda</button>
     <button class="nav-tab" onclick="aba('torge',this)">💻 Torge</button>
   </div>
 
@@ -325,6 +357,60 @@ td{padding:11px 14px;vertical-align:middle;}
           <div style="font-size:11px;color:#9C9A94;margin-top:2px;">Visão geral</div>
         </div>
 
+      </div>
+    </div>
+  </div>
+
+  <!-- ABA AGENDA -->
+  <div class="tab-panel" id="aba-agenda">
+    <div class="agenda-grid">
+      <!-- COLUNA ESQUERDA: formulário + mini calendário -->
+      <div>
+        <div class="agenda-mini-cal">
+          <div class="cal-header">
+            <button onclick="calMes(-1)">&#8249;</button>
+            <span id="cal-titulo"></span>
+            <button onclick="calMes(1)">&#8250;</button>
+          </div>
+          <div class="cal-grid" id="cal-grid"></div>
+        </div>
+        <div class="agenda-form">
+          <h3>➕ Novo compromisso</h3>
+          <div class="fr"><label>Título *</label><input type="text" id="ag-titulo" placeholder="Ex: Renovar certificado da empresa X"></div>
+          <div class="fr"><label>Data *</label><input type="date" id="ag-data"></div>
+          <div class="fr"><label>Hora</label><input type="time" id="ag-hora" placeholder="09:00"></div>
+          <div class="fr"><label>Categoria</label>
+            <select id="ag-cat">
+              <option value="certificado">🔐 Certificado</option>
+              <option value="reuniao">👥 Reunião</option>
+              <option value="financeiro">💰 Financeiro</option>
+              <option value="cliente">🤝 Cliente</option>
+              <option value="outro">📌 Outro</option>
+            </select>
+          </div>
+          <div class="fr"><label>Observação</label><textarea id="ag-obs" placeholder="Detalhes do compromisso..."></textarea></div>
+          <div class="fr"><label>Lembrete</label>
+            <select id="ag-lembrete">
+              <option value="0">No horário</option>
+              <option value="15">15 minutos antes</option>
+              <option value="30">30 minutos antes</option>
+              <option value="60">1 hora antes</option>
+              <option value="1440">1 dia antes</option>
+            </select>
+          </div>
+          <button class="btn bp" onclick="salvarAgenda()" style="width:100%;justify-content:center;margin-top:4px;">Salvar compromisso</button>
+        </div>
+      </div>
+      <!-- COLUNA DIREITA: lista de compromissos -->
+      <div>
+        <div class="agenda-filtros">
+          <button class="btn bp bsm" onclick="filtrarAgenda('todos')">Todos</button>
+          <button class="btn bo bsm" onclick="filtrarAgenda('hoje')">📅 Hoje</button>
+          <button class="btn bo bsm" onclick="filtrarAgenda('semana')">📆 Esta semana</button>
+          <button class="btn bd bsm" onclick="filtrarAgenda('atrasado')">⚠️ Atrasados</button>
+          <button class="btn bs bsm" onclick="filtrarAgenda('certificado')">🔐 Certificados</button>
+        </div>
+        <div class="agenda-lista" id="agenda-lista"></div>
       </div>
     </div>
   </div>
@@ -557,6 +643,7 @@ td{padding:11px 14px;vertical-align:middle;}
 </div>
 
 <div id="print-area"></div>
+<div class="notif-som" id="notif-som">🔔 <span id="notif-som-txt"></span></div>
 
 <!-- MODAL VISUALIZAÇÃO DE RELATÓRIO -->
 <div class="overlay" id="m-relatorio" style="z-index:300;align-items:flex-start;padding:1rem;overflow-y:auto;">
@@ -1536,11 +1623,178 @@ document.addEventListener('click',e=>{ if(e.target.classList.contains('overlay')
 function toast(m,t){ const el=document.getElementById('toast'); el.textContent=m; el.className='toast show '+(t==='e'?'te':'ts'); setTimeout(()=>el.className='toast',3500); }
 
 // =====================================================
-// INICIALIZAÇÃO
+// AGENDA
 // =====================================================
+let AGENDA = JSON.parse(localStorage.getItem('brc_agenda')||'[]');
+let AID = parseInt(localStorage.getItem('brc_aid')||'1');
+let agendaFiltro = 'todos';
+let calAtual = new Date();
+let agendaCheckInterval = null;
+
+const CAT_ICON = {certificado:'🔐',reuniao:'👥',financeiro:'💰',cliente:'🤝',outro:'📌'};
+const CAT_NOME = {certificado:'Certificado',reuniao:'Reuniao',financeiro:'Financeiro',cliente:'Cliente',outro:'Outro'};
+
+function salvarAgenda(){
+  const titulo = document.getElementById('ag-titulo').value.trim();
+  const data = document.getElementById('ag-data').value;
+  if(!titulo||!data){ toast('Preencha o título e a data.','e'); return; }
+  AGENDA.push({
+    id:AID++, titulo, data,
+    hora: document.getElementById('ag-hora').value||'',
+    cat: document.getElementById('ag-cat').value,
+    obs: document.getElementById('ag-obs').value,
+    lembrete: parseInt(document.getElementById('ag-lembrete').value||'0'),
+    concluido: false,
+    criado: new Date().toISOString()
+  });
+  localStorage.setItem('brc_agenda', JSON.stringify(AGENDA));
+  localStorage.setItem('brc_aid', String(AID));
+  document.getElementById('ag-titulo').value='';
+  document.getElementById('ag-data').value='';
+  document.getElementById('ag-hora').value='';
+  document.getElementById('ag-obs').value='';
+  renderAgenda(); renderCalendario();
+  toast('Compromisso salvo! ✅');
+}
+
+function statusAgenda(a){
+  const agora = new Date();
+  const dataEvt = new Date(a.data+'T'+(a.hora||'00:00')+':00');
+  if(a.concluido) return 'concluido';
+  if(dataEvt < agora && !isMesmaData(dataEvt, agora)) return 'urgente';
+  if(isMesmaData(dataEvt, agora)) return 'hoje';
+  return 'futuro';
+}
+
+function isMesmaData(d1,d2){
+  return d1.getFullYear()===d2.getFullYear()&&d1.getMonth()===d2.getMonth()&&d1.getDate()===d2.getDate();
+}
+
+function filtrarAgenda(f){ agendaFiltro=f; renderAgenda(); }
+
+function renderAgenda(){
+  const agora = new Date();
+  const fimSemana = new Date(agora); fimSemana.setDate(agora.getDate()+7);
+  let lst = AGENDA.filter(a=>{
+    if(agendaFiltro==='hoje') return isMesmaData(new Date(a.data+'T00:00:00'), agora);
+    if(agendaFiltro==='semana'){ const d=new Date(a.data+'T00:00:00'); return d>=agora&&d<=fimSemana; }
+    if(agendaFiltro==='atrasado') return statusAgenda(a)==='urgente';
+    if(agendaFiltro==='certificado') return a.cat==='certificado';
+    return true;
+  });
+  lst.sort((a,b)=>{
+    const sa=statusAgenda(a),sb=statusAgenda(b);
+    if(sa==='urgente'&&sb!=='urgente') return -1;
+    if(sb==='urgente'&&sa!=='urgente') return 1;
+    if(sa==='hoje'&&sb!=='hoje') return -1;
+    if(sb==='hoje'&&sa!=='hoje') return 1;
+    return new Date(a.data)-new Date(b.data);
+  });
+  const el = document.getElementById('agenda-lista');
+  if(!lst.length){ el.innerHTML='<div class="agenda-vazia">Nenhum compromisso encontrado.<br>Cadastre um novo ao lado! 😊</div>'; return; }
+  const meses=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  el.innerHTML = lst.map(a=>{
+    const s=statusAgenda(a);
+    const d=new Date(a.data+'T00:00:00');
+    const dataFmt=d.getDate()+' '+meses[d.getMonth()]+'/'+d.getFullYear()+(a.hora?' às '+a.hora:'');
+    const slabel={urgente:'🔴 Atrasado',hoje:'🟢 Hoje',futuro:'🔵 Próximo',concluido:'✅ Concluído'}[s];
+    return '<div class="agenda-item '+s+'">'+
+      '<div class="ai-icon">'+CAT_ICON[a.cat]+'</div>'+
+      '<div class="ai-corpo">'+
+        '<div class="ai-titulo">'+(a.concluido?'<s>':'')+a.titulo+(a.concluido?'</s>':'')+'</div>'+
+        '<div class="ai-data">'+dataFmt+' · '+slabel+' · '+CAT_NOME[a.cat]+'</div>'+
+        (a.obs?'<div class="ai-obs">'+a.obs+'</div>':'')+
+        '<div class="ai-acts">'+
+          (s!=='concluido'?'<button class="btn bs bsm" onclick="concluirAgenda('+a.id+')">✅ Concluído</button>':
+          '<button class="btn bo bsm" onclick="reabrirAgenda('+a.id+')">↩ Reabrir</button>')+
+          '<button class="btn bd bsm" onclick="excluirAgenda('+a.id+')">✕</button>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+function concluirAgenda(id){ const a=AGENDA.find(x=>x.id===id); if(a){ a.concluido=true; localStorage.setItem('brc_agenda',JSON.stringify(AGENDA)); renderAgenda(); renderCalendario(); toast('Marcado como concluído!'); } }
+function reabrirAgenda(id){ const a=AGENDA.find(x=>x.id===id); if(a){ a.concluido=false; localStorage.setItem('brc_agenda',JSON.stringify(AGENDA)); renderAgenda(); renderCalendario(); } }
+function excluirAgenda(id){ if(!confirm('Excluir este compromisso?')) return; AGENDA=AGENDA.filter(x=>x.id!==id); localStorage.setItem('brc_agenda',JSON.stringify(AGENDA)); renderAgenda(); renderCalendario(); toast('Excluído.'); }
+
+// CALENDÁRIO
+function renderCalendario(){
+  const ano=calAtual.getFullYear(), mes=calAtual.getMonth();
+  const nomeMes=['Janeiro','Fevereiro','Marco','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  document.getElementById('cal-titulo').textContent=nomeMes[mes]+' '+ano;
+  const primeiroDia=new Date(ano,mes,1).getDay();
+  const diasMes=new Date(ano,mes+1,0).getDate();
+  const hoje2=new Date(); hoje2.setHours(0,0,0,0);
+  const dias=['D','S','T','Q','Q','S','S'];
+  let html='';
+  for(let i=0;i<7;i++) html+='<div class="cal-dia-nome">'+dias[i]+'</div>';
+  for(let i=0;i<primeiroDia;i++) html+='<div class="cal-dia outro-mes"></div>';
+  for(let d=1;d<=diasMes;d++){
+    const dt=new Date(ano,mes,d); dt.setHours(0,0,0,0);
+    const ds=ano+'-'+String(mes+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    const temEvt=AGENDA.some(function(a){ return a.data===ds&&!a.concluido; });
+    const eh=dt.getTime()===hoje2.getTime();
+    const cls='cal-dia'+(eh?' hoje':'')+(temEvt&&!eh?' tem-evento':'');
+    html+='<div class="'+cls+'" data-ds="'+ds+'" onclick="filtrarDia(this.getAttribute('data-ds'))">'+d+'</div>';
+  }
+  document.getElementById('cal-grid').innerHTML=html;
+}
+
+function calMes(dir){ calAtual.setMonth(calAtual.getMonth()+dir); renderCalendario(); }
+
+function filtrarDia(data){
+  agendaFiltro='todos';
+  renderAgenda();
+  document.getElementById('ag-data').value=data;
+}
+
+// VERIFICAR LEMBRETES
+function verificarLembretes(){
+  const agora=new Date();
+  AGENDA.filter(a=>!a.concluido&&a.hora).forEach(a=>{
+    const dataEvt=new Date(a.data+'T'+a.hora+':00');
+    const lembMin=a.lembrete||0;
+    const dataLembrete=new Date(dataEvt.getTime()-lembMin*60000);
+    const diff=Math.abs(agora-dataLembrete);
+    if(diff<60000){
+      tocarSom();
+      mostrarNotifSom((lembMin>0?lembMin+' min para: ':'')+a.titulo);
+    }
+  });
+}
+
+function tocarSom(){
+  try {
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    [523,659,784,659,784].forEach((freq,i)=>{
+      const osc=ctx.createOscillator();
+      const gain=ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.frequency.value=freq;
+      osc.type='sine';
+      gain.gain.setValueAtTime(0.3,ctx.currentTime+i*0.15);
+      gain.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+i*0.15+0.14);
+      osc.start(ctx.currentTime+i*0.15);
+      osc.stop(ctx.currentTime+i*0.15+0.15);
+    });
+  } catch(e){}
+}
+
+function mostrarNotifSom(txt){
+  const el=document.getElementById('notif-som');
+  document.getElementById('notif-som-txt').textContent=txt;
+  el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),5000);
+}
+
 function iniciar(){
   document.getElementById('data-hoje').textContent=hoje.toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
   render(); renderClientes(); renderRecibos(); renderMetricsRec(); notif();
+  renderAgenda(); renderCalendario();
+  if(agendaCheckInterval) clearInterval(agendaCheckInterval);
+  agendaCheckInterval = setInterval(verificarLembretes, 30000);
+  verificarLembretes();
 }
 </script>
 </body>
